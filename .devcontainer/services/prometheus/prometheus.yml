@@ -1,0 +1,22 @@
+# ================================================================
+# Prometheus — scrape config
+# Add your app's /metrics endpoint here
+# ================================================================
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Example: scrape your Node.js app (add prom-client to your app)
+  # - job_name: "node-app"
+  #   static_configs:
+  #     - targets: ["devcontainer:3000"]
+
+  # Example: scrape Redis exporter
+  # - job_name: "redis"
+  #   static_configs:
+  #     - targets: ["redis-exporter:9121"]

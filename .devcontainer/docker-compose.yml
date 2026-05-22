@@ -1,0 +1,257 @@
+# ================================================================
+# Dev Container — Compose file
+#
+# The `devcontainer` service is the main VS Code container.
+# All other services (postgres, redis, mongo, etc.) share the
+# same `webdev` network so they are reachable by hostname from
+# inside VS Code's terminal.
+#
+# Usage:
+#   • VS Code opens the `devcontainer` service automatically.
+#   • Start optional services:
+#       docker compose -f .devcontainer/docker-compose.yml \
+#                      --profile postgres up -d
+#   • Or from inside the devcontainer:
+#       dc up -d postgres redis   (dc alias is set in bashrc)
+# ================================================================
+
+# ----------------------------------------------------------------
+# Shared network — every container resolves others by service name
+# ----------------------------------------------------------------
+networks:
+  webdev:
+    name: webdev
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ----------------------------------------------------------------
+# Named volumes
+# ----------------------------------------------------------------
+volumes:
+  postgres-data:
+  mongo-data:
+  redis-data:
+  mysql-data:
+  rabbitmq-data:
+  elasticsearch-data:
+  devcontainer-bashhistory:
+
+    # ----------------------------------------------------------------
+    # Services
+    # ----------------------------------------------------------------
+services:
+
+  # --------------------------------------------------------------
+  # PRIMARY: VS Code Dev Container
+  # --------------------------------------------------------------
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      # Mount workspace source
+      - ..:/workspace:cached
+      # Docker socket for DinD (Docker-outside-of-Docker)
+      # TODO: does this work on Windows?
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persist shell history across rebuilds
+      - devcontainer-bashhistory:/commandhistory
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      HISTFILE: /commandhistory/.bash_history
+    networks:
+      webdev:
+        aliases:
+          - devcontainer
+    # Keep container running
+    command: sleep infinity
+    user: vscode
+
+  # --------------------------------------------------------------
+  # PostgreSQL  (profile: postgres)
+  # Connect: psql -h postgres -U dev -d devdb
+  # --------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    profiles: [ postgres, full ]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: devdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    networks:
+      webdev:
+        aliases:
+          - postgres
+          - db
+
+  # --------------------------------------------------------------
+  # MongoDB  (profile: mongo)
+  # Connect: mongosh mongodb://dev:devpassword@mongo:27017/devdb
+  # --------------------------------------------------------------
+  mongo:
+    image: mongo:7
+    profiles: [ mongo, full ]
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dev
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: devdb
+    volumes:
+      - mongo-data:/data/db
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/mongo/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "27017:27017"
+    networks:
+      webdev:
+        aliases:
+          - mongo
+          - mongodb
+
+  # --------------------------------------------------------------
+  # Redis  (profile: redis)
+  # Connect: redis-cli -h redis
+  # --------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    profiles: [ redis, full ]
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      webdev:
+        aliases:
+          - redis
+          - cache
+
+  # --------------------------------------------------------------
+  # MySQL  (profile: mysql)
+  # Connect: mysql -h mysql -u dev -pdevpassword devdb
+  # --------------------------------------------------------------
+  mysql:
+    image: mysql:8.3
+    profiles: [ mysql, full ]
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: devdb
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: devpassword
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      webdev:
+        aliases:
+          - mysql
+
+  # --------------------------------------------------------------
+  # RabbitMQ  (profile: rabbitmq)
+  # Management UI: http://localhost:15672  (dev / devpassword)
+  # AMQP: amqp://dev:devpassword@rabbitmq:5672
+  # --------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    profiles: [ rabbitmq, full ]
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: dev
+      RABBITMQ_DEFAULT_PASS: devpassword
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      webdev:
+        aliases:
+          - rabbitmq
+          - mq
+
+  # --------------------------------------------------------------
+  # Elasticsearch  (profile: elastic)
+  # Connect: curl http://elastic:9200
+  # --------------------------------------------------------------
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    profiles: [ elastic, full ]
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      ELASTIC_PASSWORD: devpassword
+      xpack.security.enabled: "false"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      webdev:
+        aliases:
+          - elasticsearch
+          - elastic
+
+  # --------------------------------------------------------------
+  # Prometheus  (profile: observability)
+  # UI: http://localhost:9090
+  # --------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: [ observability, full ]
+    restart: unless-stopped
+    volumes:
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      webdev:
+        aliases:
+          - prometheus
+
+  # --------------------------------------------------------------
+  # Grafana  (profile: observability)
+  # UI: http://localhost:3030  (admin / admin)
+  # --------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    profiles: [ observability, full ]
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SERVER_HTTP_PORT: "3030"
+    ports:
+      - "3030:3030"
+    networks:
+      webdev:
+        aliases:
+          - grafana
+
+  # --------------------------------------------------------------
+  # Nginx reverse-proxy stub  (profile: nginx)
+  # Useful for testing upstream proxy scenarios
+  # --------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    profiles: [ nginx, full ]
+    restart: unless-stopped
+    volumes:
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/nginx/conf.d:/etc/nginx/conf.d:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      webdev:
+        aliases:
+          - nginx
+          - proxy

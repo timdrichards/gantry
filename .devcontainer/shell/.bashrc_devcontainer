@@ -1,0 +1,114 @@
+# ================================================================
+# Dev Container — Shell Enhancements
+# Sourced by /etc/bash.bashrc for all bash sessions
+# ================================================================
+
+# ---- Prompt (shows git branch + node version) ------------------
+__git_branch() {
+  git rev-parse --abbrev-ref HEAD 2>/dev/null | sed 's/.*/ (\0)/'
+}
+__node_ver() {
+  node --version 2>/dev/null | sed 's/v//'
+}
+PS1='\[\e[0;36m\]\u\[\e[0m\]@\[\e[0;33m\]devcontainer\[\e[0m\]:\[\e[0;34m\]\w\[\e[0;35m\]$(__git_branch)\[\e[0m\] \[\e[0;32m\][node $(__node_ver)]\[\e[0m\]\n\$ '
+
+# ---- Persistent bash history -----------------------------------
+export HISTFILE=/commandhistory/.bash_history
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoredups:erasedups
+shopt -s histappend
+
+# ---- Convenience aliases — Docker / Compose --------------------
+alias d='docker'
+alias dc='docker compose -f /workspace/.devcontainer/docker-compose.yml --project-name "$(basename "${LOCAL_WORKSPACE_FOLDER}")_devcontainer"'
+alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+alias dlog='docker logs -f'
+alias dex='docker exec -it'
+alias dnet='docker network ls'
+alias dvol='docker volume ls'
+alias dprune='docker system prune -f'
+
+# Start individual services from anywhere
+dc-up()   { dc up -d "$@"; }
+dc-down() { dc down "$@"; }
+dc-logs() { dc logs -f "$@"; }
+
+# ---- Node / npm aliases ----------------------------------------
+alias ni='npm install'
+alias nr='npm run'
+alias ns='npm start'
+alias nt='npm test'
+alias nrd='npm run dev'
+alias pni='pnpm install'
+alias pnr='pnpm run'
+
+# ---- Network debug shortcuts -----------------------------------
+alias myip='curl -s https://ifconfig.me'
+alias ports='ss -tulnp'
+alias listening='lsof -i -P -n | grep LISTEN'
+alias netwatch='watch -n1 ss -tulnp'
+
+# HTTP request helpers
+alias GET='curl -sS -X GET'
+alias POST='curl -sS -X POST -H "Content-Type: application/json"'
+alias PUT='curl -sS -X PUT -H "Content-Type: application/json"'
+alias DELETE='curl -sS -X DELETE'
+alias HEAD='curl -sS -I'
+
+# Pretty-print JSON from curl
+jcurl() { curl -sS "$@" | jq .; }
+
+# WebSocket quick test
+wstest() { websocat "$1"; }
+
+# ---- Database shortcuts ----------------------------------------
+alias psql-dev='psql -h postgres -U dev -d devdb'
+alias redis-dev='redis-cli -h redis'
+alias mongo-dev='mongosh "mongodb://dev:devpassword@mongo:27017/devdb"'
+alias mysql-dev='mysql -h mysql -u dev -pdevpassword devdb'
+
+# ---- k6 load testing -------------------------------------------
+alias k6run='k6 run'
+
+# ---- Process / system ------------------------------------------
+alias ll='ls -lAh --color=auto'
+alias la='ls -A --color=auto'
+alias grep='grep --color=auto'
+alias diff='diff --color=auto'
+alias cat='bat --paging=never 2>/dev/null || cat'
+
+# ---- Git shortcuts ---------------------------------------------
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate -20'
+alias gd='git diff'
+
+# ---- Path additions --------------------------------------------
+export PATH="$PATH:/workspace/node_modules/.bin"
+export PATH="$HOME/.local/bin:$PATH"
+
+# ---- Node env defaults -----------------------------------------
+export NODE_ENV=development
+export FORCE_COLOR=1
+
+# ---- Welcome banner --------------------------------------------
+echo ""
+echo "  ╔══════════════════════════════════════════════════╗"
+echo "  ║  Web Dev + Scalable Systems  •  Dev Container   ║"
+echo "  ╠══════════════════════════════════════════════════╣"
+printf "  ║  Node %-10s  npm %-10s  pnpm %-9s  ║\n" \
+  "$(node -v 2>/dev/null)" \
+  "$(npm -v 2>/dev/null)" \
+  "$(pnpm -v 2>/dev/null)"
+printf "  ║  Docker %-36s  ║\n" "$(docker --version 2>/dev/null | cut -d' ' -f3 | tr -d ',')"
+echo "  ╠══════════════════════════════════════════════════╣"
+echo "  ║  Network: webdev (172.28.0.0/16)                ║"
+echo "  ║  Type 'dc-up <service>' to start services       ║"
+echo "  ║  Services: postgres | mongo | redis | mysql     ║"
+echo "  ║           rabbitmq | elasticsearch | nginx      ║"
+echo "  ║           prometheus | grafana                  ║"
+echo "  ╚══════════════════════════════════════════════════╝"
+echo ""
