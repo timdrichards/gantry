@@ -97,18 +97,18 @@ export FORCE_COLOR=1
 # ---- Welcome banner --------------------------------------------
 echo ""
 echo "  ╔══════════════════════════════════════════════════╗"
-echo "  ║  Web Dev + Scalable Systems  •  Dev Container   ║"
+echo "  ║  Web Dev + Scalable Systems  •  Dev Container    ║"
 echo "  ╠══════════════════════════════════════════════════╣"
-printf "  ║  Node %-10s  npm %-10s  pnpm %-9s  ║\n" \
+printf "  ║  Node %-10s  npm %-10s  pnpm %-9s ║\n" \
   "$(node -v 2>/dev/null)" \
   "$(npm -v 2>/dev/null)" \
   "$(pnpm -v 2>/dev/null)"
-printf "  ║  Docker %-36s  ║\n" "$(docker --version 2>/dev/null | cut -d' ' -f3 | tr -d ',')"
+printf "  ║  Docker %-36s     ║\n" "$(docker --version 2>/dev/null | cut -d' ' -f3 | tr -d ',')"
 echo "  ╠══════════════════════════════════════════════════╣"
-echo "  ║  Network: webdev (172.28.0.0/16)                ║"
-echo "  ║  Type 'dc-up <service>' to start services       ║"
-echo "  ║  Services: postgres | mongo | redis | mysql     ║"
-echo "  ║           rabbitmq | elasticsearch | nginx      ║"
-echo "  ║           prometheus | grafana                  ║"
+echo "  ║  Network: webdev (172.28.0.0/16)                 ║"
+echo "  ║  Type 'dc-up <service>' to start services        ║"
+echo "  ║  Services: postgres | mongo | redis | mysql      ║"
+echo "  ║            rabbitmq | elasticsearch | nginx      ║"
+echo "  ║            prometheus | grafana                  ║"
 echo "  ╚══════════════════════════════════════════════════╝"
 echo ""
