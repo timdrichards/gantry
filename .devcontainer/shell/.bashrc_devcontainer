@@ -25,6 +25,17 @@ alias dc='docker compose -f /workspace/.devcontainer/docker-compose.yml --projec
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
 alias dlog='docker logs -f'
 alias dex='docker exec -it'
+# Run rpk (Redpanda CLI) inside the redpanda container
+rpk() {
+  local container
+  container=$(docker ps --filter "label=com.docker.compose.service=redpanda" --format "{{.Names}}" | head -1)
+  if [[ -z "$container" ]]; then
+    echo "rpk: redpanda is not running" >&2
+    return 1
+  fi
+  docker exec -it "$container" rpk "$@"
+}
+
 dexb() {
   local service="${1:?usage: dexb <service>}"
   local container
@@ -127,7 +138,9 @@ echo "  ╠═══════════════════════
 echo "  ║  Network: webdev (172.28.0.0/16)                 ║"
 echo "  ║  Type 'dc-up <service>' to start services        ║"
 echo "  ║  Services: postgres | mongo | redis | mysql      ║"
-echo "  ║            rabbitmq | elasticsearch | nginx      ║"
-echo "  ║            caddy | prometheus | grafana          ║"
+echo "  ║            rabbitmq | elasticsearch | memcached  ║"
+echo "  ║            minio | redpanda | mailpit | adminer  ║"
+echo "  ║            nginx | caddy | prometheus | grafana  ║"
+echo "  ║            jaeger                                ║"
 echo "  ╚══════════════════════════════════════════════════╝"
 echo ""

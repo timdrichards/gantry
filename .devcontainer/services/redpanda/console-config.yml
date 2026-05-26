@@ -1,0 +1,18 @@
+# ================================================================
+# Redpanda Console — configuration
+# Mounted into the redpanda-console container at startup.
+# ================================================================
+
+kafka:
+  brokers:
+    - redpanda:9092
+  schemaRegistry:
+    enabled: true
+    urls:
+      - http://redpanda:8081
+
+redpanda:
+  adminApi:
+    enabled: true
+    urls:
+      - http://redpanda:9644

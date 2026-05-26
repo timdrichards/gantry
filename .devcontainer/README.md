@@ -70,8 +70,10 @@ Everything runs inside a shared Docker bridge network (`webdev`) so every contai
     │       └── default.conf   # Default reverse-proxy server block
     ├── postgres/
     │   └── init/01-init.sql   # PostgreSQL init script (extensions, schema)
-    └── prometheus/
-        └── prometheus.yml     # Prometheus scrape configuration
+    ├── prometheus/
+    │   └── prometheus.yml     # Prometheus scrape configuration
+    └── redpanda/
+        └── console-config.yml # Redpanda Console broker/registry config
 ```
 
 ---
@@ -229,6 +231,13 @@ Runs **every time** the container starts (including after a VS Code window reloa
 | mysql | `mysql:8.3` | `mysql` | 3306 | `dev` / `devpassword` / `devdb` | — |
 | rabbitmq | `rabbitmq:3-management-alpine` | `rabbitmq` | 5672 / 15672 | `dev` / `devpassword` | — |
 | elasticsearch | `elasticsearch:8.13.0` | `elastic` | 9200 | `elastic` / `devpassword` | — |
+| memcached | `memcached:alpine` | `memcached` | 11211 | none | — |
+| mailpit | `axllent/mailpit` | `mailpit` | 1025 (SMTP) / 8025 (UI) | none | — |
+| minio | `minio/minio` | `minio` | 9000 (API) / 9001 (console) | `dev` / `devpassword` | — |
+| redpanda | `redpandadata/redpanda` | `redpanda` | 9092 / 8081 / 8082 / 9644 | none | — |
+| redpanda-console | `redpandadata/console` | `redpanda` | 9080 | none | `services/redpanda/console-config.yml` |
+| jaeger | `jaegertracing/all-in-one` | `observability` | 16686 (UI) / 4317 / 4318 | none | — |
+| adminer | `adminer` | `adminer` | 8888 | none | — |
 | caddy | `caddy:alpine` | `caddy` | 80 / 443 / 2019 | — | `services/caddy/Caddyfile` |
 | nginx | `nginx:alpine` | `nginx` | 80 / 443 | — | — |
 | prometheus | `prom/prometheus:latest` | `observability` | 9090 | — | `services/prometheus/prometheus.yml` |
@@ -236,7 +245,7 @@ Runs **every time** the container starts (including after a VS Code window reloa
 
 > **Note:** Caddy and Nginx both bind ports 80 and 443. Do not start both profiles simultaneously.
 
-Data volumes are named and persist across container restarts: `postgres-data`, `mongo-data`, `redis-data`, `mysql-data`, `rabbitmq-data`, `elasticsearch-data`.
+Data volumes are named and persist across container restarts: `postgres-data`, `mongo-data`, `redis-data`, `mysql-data`, `rabbitmq-data`, `elasticsearch-data`, `minio-data`, `redpanda-data`.
 
 ---
 
@@ -260,8 +269,11 @@ Defined in `shell/.bashrc_devcontainer`.
 | `dc-down [args...]` | `dc down [args...]` |
 | `dc-logs [services...]` | `dc logs -f [services...]` |
 | `dexb <service>` | Exec bash (or sh) into a running service container by service name, regardless of compose project |
+| `rpk [args...]` | Run the Redpanda `rpk` CLI inside the redpanda container |
 
 `dexb` works by filtering `docker ps` on the `com.docker.compose.service` label, so it finds the container even if it was started under a different project name than the current `dc` alias expects. It silently checks for `bash` first, falls back to `sh`, and errors if neither is found.
+
+`rpk` is the Redpanda CLI for managing topics, ACLs, and cluster config. Examples: `rpk topic list`, `rpk topic create my-topic`, `rpk topic consume my-topic`.
 
 ### Database quick-connect
 
@@ -334,13 +346,28 @@ Key editor settings applied globally inside the container:
 | 5173 | Vite dev server (notify on open) |
 | 8080 | General HTTP |
 | 8443 | General HTTPS |
+| 8888 | Adminer (notify on open) |
 | 9090 | Prometheus |
 | 3306 | MySQL |
 | 5432 | PostgreSQL |
 | 6379 | Redis |
+| 11211 | Memcached |
 | 27017 | MongoDB |
 | 9200 | Elasticsearch |
 | 4369 | Erlang (RabbitMQ) |
+| 2019 | Caddy admin API |
+| 1025 | Mailpit SMTP |
+| 8025 | Mailpit web UI (notify on open) |
+| 9000 | MinIO API |
+| 9001 | MinIO console (notify on open) |
+| 9092 | Redpanda Kafka API |
+| 8081 | Redpanda Schema Registry |
+| 8082 | Redpanda HTTP Proxy |
+| 9644 | Redpanda Admin API |
+| 9080 | Redpanda Console UI (notify on open) |
+| 16686 | Jaeger UI (notify on open) |
+| 4317 | Jaeger OTLP gRPC |
+| 4318 | Jaeger OTLP HTTP |
 
 Add more ports to `forwardPorts` in `devcontainer.json` as needed. `portsAttributes` controls the label and `onAutoForward` behaviour (`notify`, `silent`, `openBrowser`).
 
@@ -361,23 +388,22 @@ Changes to `shell/.bashrc_devcontainer` or the lifecycle scripts take effect on 
 5. Add a quick-connect alias to `shell/.bashrc_devcontainer` if the service has a CLI client.
 6. Update the welcome banner at the bottom of `.bashrc_devcontainer` to list the new service name.
 
-Example — adding Memcached:
+Example — adding a hypothetical ClickHouse service:
 
 ```yaml
 # docker-compose.yml
-  memcached:
-    image: memcached:alpine
-    profiles: [ memcached, full ]
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    profiles: [ clickhouse, full ]
     restart: unless-stopped
     ports:
-      - "11211:11211"
+      - "8123:8123"
+      - "9000:9000"
     networks:
       webdev:
         aliases:
-          - memcached
+          - clickhouse
 ```
-
-No named volume is needed (Memcached is in-memory only).
 
 ### Adding a VS Code extension
 
@@ -501,6 +527,114 @@ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keyc
 ```
 
 > **Caddy vs Nginx:** Caddy is simpler to configure for HTTPS and virtual hosts. Nginx offers more control over low-level HTTP behaviour. They cannot run simultaneously because both bind ports 80 and 443.
+
+### Using Mailpit
+
+Mailpit is an SMTP trap — any email your app sends to `mailpit:1025` is caught and displayed in the Mailpit web UI instead of being delivered. No real email is ever sent.
+
+Configure your app's mail transport (e.g. Nodemailer) to point at the trap:
+
+```js
+const transporter = nodemailer.createTransport({ host: "mailpit", port: 1025 });
+```
+
+View captured emails at `http://mailpit:8025` from inside the devcontainer. All messages are ephemeral — they are lost when the container stops (no named volume).
+
+### Using MinIO
+
+MinIO exposes an S3-compatible API at `http://minio:9000`. Use the standard AWS SDK in your app with the endpoint overridden:
+
+```js
+import { S3Client } from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+  endpoint: "http://minio:9000",
+  region: "us-east-1",
+  credentials: { accessKeyId: "dev", secretAccessKey: "devpassword" },
+  forcePathStyle: true, // required for MinIO
+});
+```
+
+The MinIO web console is at `http://minio:9001` (credentials `dev` / `devpassword`). Use it to create buckets and browse objects.
+
+MinIO does not create a default bucket on startup. Create one via the console or with the AWS SDK before your first `PutObject`.
+
+### Using Redpanda
+
+Redpanda is a Kafka-compatible broker. Any library that works with Kafka works with Redpanda. Connect to `redpanda:9092`:
+
+```js
+import { Kafka } from "kafkajs";
+
+const kafka = new Kafka({ brokers: ["redpanda:9092"] });
+```
+
+**`rpk` CLI** — the `rpk` shell function wraps the Redpanda CLI inside the container:
+
+```bash
+rpk topic list
+rpk topic create my-topic --partitions 3
+rpk topic produce my-topic   # interactive producer
+rpk topic consume my-topic --from-beginning
+```
+
+**Redpanda Console** — a web UI for browsing topics and messages is at `http://redpanda-console:9080`.
+
+**Schema Registry** — available at `http://redpanda:8081` for Avro/Protobuf schema management.
+
+To reset all topics and data, remove the named volume:
+
+```bash
+docker volume rm <project>_devcontainer-redpanda-data
+dc-up redpanda
+```
+
+To add Redpanda Console config (e.g. to enable authentication or multiple clusters), edit `services/redpanda/console-config.yml` and restart the `redpanda-console` container.
+
+### Using Memcached
+
+Memcached has no persistent volume — data is lost when the container stops, which is the correct behaviour for a pure cache.
+
+Connect from your app using any Memcached client library at `memcached:11211`. Quick connectivity check from the devcontainer terminal:
+
+```bash
+echo "stats" | nc memcached 11211
+```
+
+### Using Jaeger
+
+Jaeger collects distributed traces from your app via OpenTelemetry. Instrument your Node.js app with the OTEL SDK:
+
+```bash
+npm install @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node \
+            @opentelemetry/exporter-trace-otlp-grpc
+```
+
+```js
+// tracing.js — import before everything else
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+
+const sdk = new NodeSDK({
+  traceExporter: new OTLPTraceExporter({ url: "http://jaeger:4317" }),
+  instrumentations: [getNodeAutoInstrumentations()],
+});
+sdk.start();
+```
+
+View traces in the Jaeger UI at `http://jaeger:16686`.
+
+### Using Adminer
+
+Adminer is a single-page web UI for relational databases. Access it at `http://adminer:8888`.
+
+On the login screen:
+- **System** — select the database type (PostgreSQL, MySQL, etc.)
+- **Server** — use the service hostname (`postgres`, `mysql`)
+- **Username / Password / Database** — use the credentials from the service reference table above
+
+Adminer also supports MongoDB and Elasticsearch via plugins, but those are not pre-installed in the `adminer` base image.
 
 ### Customising Nginx
 
