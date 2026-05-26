@@ -152,12 +152,12 @@ RUN ARCH=$(dpkg --print-architecture) \
        | tar -xz --strip-components=1 -C /usr/local/bin --wildcards "*/k6" \
     && chmod +x /usr/local/bin/k6 || true
 
-# mongosh — MongoDB shell
-RUN curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc \
-       | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg \
-    && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] \
-       https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/7.0 multiverse" \
-       > /etc/apt/sources.list.d/mongodb-org-7.0.list \
+# mongosh — MongoDB shell (8.0 is the first series with Ubuntu 24.04 Noble packages)
+RUN curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc \
+       | gpg --dearmor -o /usr/share/keyrings/mongodb-server-8.0.gpg \
+    && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] \
+       https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" \
+       > /etc/apt/sources.list.d/mongodb-org-8.0.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends mongodb-mongosh \
     && rm -rf /var/lib/apt/lists/*
