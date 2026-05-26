@@ -453,6 +453,9 @@ cmd_list() {
       deps_str=$(jq -r '[.dependencies[]? | if type=="string" then . else .name end] | join(", ")' \
         "${plugin_dir}/plugin.json" 2>/dev/null || echo "")
       git_head=$(git -C "$plugin_dir" rev-parse --short HEAD 2>/dev/null || echo "?")
+      local has_remote
+      has_remote=$(git -C "$plugin_dir" remote get-url origin 2>/dev/null || echo "")
+      [[ -z "$has_remote" ]] && description="${description} [local]"
     fi
 
     printf "  %-20s %-10s %-10s %-12s %s\n" \
@@ -579,6 +582,266 @@ cmd_audit() {
 }
 
 # ================================================================
+# new — scaffold a local plugin
+# ================================================================
+cmd_new() {
+  local name="${1:-}"
+  [[ -z "$name" ]] && die "Usage: plugin new <name> [--description <desc>] [--author <author>] [--version <ver>]"
+  shift || true
+
+  local opt_description="" opt_author="" opt_version="1.0.0"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --description) shift; opt_description="${1:?--description requires a value}"; shift ;;
+      --author)      shift; opt_author="${1:?--author requires a value}"; shift ;;
+      --version)     shift; opt_version="${1:?--version requires a value}"; shift ;;
+      *) die "Unknown option: $1" ;;
+    esac
+  done
+
+  sanitize_plugin_name "$name" >/dev/null
+  require_plugins_dir
+  ensure_registry_valid
+
+  local plugin_dir="${PLUGINS_DIR}/${name}"
+  [[ -d "$plugin_dir" ]] && die "Plugin '${name}' already exists at ${plugin_dir}."
+
+  # Collect info interactively for any fields not provided as flags
+  if [[ -z "$opt_description" ]]; then
+    read -r -p "  Description: " opt_description
+    opt_description="${opt_description:-A dev container plugin}"
+  fi
+  if [[ -z "$opt_author" ]]; then
+    local default_author
+    default_author=$(git config --global user.name 2>/dev/null \
+                     || gh api user --jq .name 2>/dev/null \
+                     || echo "")
+    read -r -p "  Author [${default_author:-your name}]: " input_author
+    opt_author="${input_author:-${default_author:-devcontainer}}"
+  fi
+
+  # Create directory structure
+  mkdir -p "${plugin_dir}/bin" "${plugin_dir}/lib" "${plugin_dir}/docs"
+
+  # plugin.json
+  jq -n \
+    --arg name        "$name" \
+    --arg version     "$opt_version" \
+    --arg description "$opt_description" \
+    --arg author      "$opt_author" \
+    '{name: $name, version: $version, description: $description,
+      author: $author, repository: "", dependencies: [], env: {}}' \
+    > "${plugin_dir}/plugin.json"
+
+  # bin/<name> — main executable
+  cat > "${plugin_dir}/bin/${name}" << BINEOF
+#!/usr/bin/env bash
+# ${name} — main command
+# TODO: add your implementation here
+echo "Hello from the ${name} plugin!"
+BINEOF
+  chmod +x "${plugin_dir}/bin/${name}"
+
+  # lib/shell.sh — sourced at login (use single-quote delimiter to avoid expansion)
+  cat > "${plugin_dir}/lib/shell.sh" << 'SHELLEOF_SENTINEL'
+# PLUGIN_NAME plugin — shell integration
+# Aliases and functions sourced into every shell session.
+# Uncomment or add your own below.
+
+# alias PLUGIN_NAME-hello='echo "Hello from PLUGIN_NAME!"'
+
+# PLUGIN_NAME-status() {
+#   echo "PLUGIN_NAME plugin is active"
+# }
+SHELLEOF_SENTINEL
+  # Replace the PLUGIN_NAME sentinel with the actual name
+  sed -i "s/PLUGIN_NAME/${name}/g" "${plugin_dir}/lib/shell.sh"
+
+  # docs/README.md
+  cat > "${plugin_dir}/docs/README.md" << DOCSEOF
+# ${name}
+
+${opt_description}
+
+## Installation
+
+\`\`\`bash
+plugin install <repository-url>
+\`\`\`
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| \`${name}\` | Main command — describe what it does |
+
+## Shell Aliases & Functions
+
+*(document the aliases/functions in lib/shell.sh here)*
+
+## Examples
+
+\`\`\`bash
+${name}
+\`\`\`
+DOCSEOF
+
+  # .gitignore
+  printf '*.log\n.DS_Store\n' > "${plugin_dir}/.gitignore"
+
+  # Initialize git repository
+  git -C "$plugin_dir" init --quiet
+
+  # Ensure local git user config exists for the initial commit.
+  # The devcontainer may not have a global ~/.gitconfig from the host.
+  if ! git -C "$plugin_dir" config user.name >/dev/null 2>&1; then
+    local git_user git_email
+    git_user=$(git config --global user.name 2>/dev/null \
+               || gh api user --jq .login 2>/dev/null \
+               || echo "devcontainer")
+    git_email=$(git config --global user.email 2>/dev/null \
+                || echo "${git_user}@localhost")
+    git -C "$plugin_dir" config user.name  "$git_user"
+    git -C "$plugin_dir" config user.email "$git_email"
+  fi
+
+  git -C "$plugin_dir" add .
+  git -C "$plugin_dir" commit --quiet -m "chore: initial plugin scaffold"
+
+  # Register as local plugin (no remote URL yet)
+  local installed_at
+  installed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  local new_registry
+  new_registry=$(jq \
+    --arg name "$name" \
+    --arg ts   "$installed_at" \
+    '.plugins[$name] = {url: null, pin: null, installed_at: $ts, local: true}' \
+    "$REGISTRY_FILE")
+  echo "$new_registry" > "$REGISTRY_FILE"
+
+  generate_loader
+
+  echo ""
+  info "Plugin '${name}' created at ${plugin_dir}"
+  echo ""
+  echo "  Next steps:"
+  printf "    1. Edit %s/plugin.json\n"    "$plugin_dir"
+  printf "    2. Edit %s/bin/%s\n"         "$plugin_dir" "$name"
+  printf "    3. Edit %s/lib/shell.sh\n"   "$plugin_dir"
+  printf "    4. Edit %s/docs/README.md\n" "$plugin_dir"
+  echo   "    5. Run 'plugin publish ${name}' when ready to share"
+  echo ""
+  info "Your current terminal will pick up the new plugin automatically."
+}
+
+# ================================================================
+# publish — push a local plugin to GitHub
+# ================================================================
+cmd_publish() {
+  local name="${1:-}"
+  [[ -z "$name" ]] && die "Usage: plugin publish <name> [--public|--private] [--org <org>]"
+  shift || true
+
+  local visibility="public" org=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --public)  visibility="public";  shift ;;
+      --private) visibility="private"; shift ;;
+      --org)     shift; org="${1:?--org requires an organization name}"; shift ;;
+      *) die "Unknown option: $1" ;;
+    esac
+  done
+
+  sanitize_plugin_name "$name" >/dev/null
+  require_plugins_dir
+  ensure_registry_valid
+
+  local plugin_dir="${PLUGINS_DIR}/${name}"
+  [[ -d "$plugin_dir" ]]        || die "Plugin '${name}' is not installed."
+  [[ -d "${plugin_dir}/.git" ]] || die "Plugin '${name}' is not a git repository. Run 'plugin new ${name}' to initialize one."
+
+  command -v gh &>/dev/null   || die "'gh' (GitHub CLI) is not installed."
+  gh auth status &>/dev/null  || die "Not authenticated with GitHub. Run 'gh auth login' first."
+
+  # Offer to commit any uncommitted changes before pushing
+  if [[ -n "$(git -C "$plugin_dir" status --porcelain 2>/dev/null)" ]]; then
+    warn "Plugin '${name}' has uncommitted changes."
+    read -r -p "  Commit all changes now before publishing? [Y/n] " do_commit
+    if [[ ! "$do_commit" =~ ^[Nn]$ ]]; then
+      git -C "$plugin_dir" add .
+      read -r -p "  Commit message [chore: update plugin]: " commit_msg
+      git -C "$plugin_dir" commit --quiet -m "${commit_msg:-chore: update plugin}"
+    fi
+  fi
+
+  local existing_remote
+  existing_remote=$(git -C "$plugin_dir" remote get-url origin 2>/dev/null || echo "")
+
+  if [[ -n "$existing_remote" ]]; then
+    # Remote already configured — just push
+    info "Remote 'origin': ${existing_remote}"
+    read -r -p "  Push to '${existing_remote}'? [Y/n] " do_push
+    [[ "$do_push" =~ ^[Nn]$ ]] && { info "Aborted."; exit 0; }
+
+    git -C "$plugin_dir" push origin 2>&1 | sed 's/^/    /'
+
+    # Back-fill registry URL if this was a local plugin (url was null)
+    local current_url
+    current_url=$(jq -r --arg n "$name" '.plugins[$n].url // empty' "$REGISTRY_FILE")
+    if [[ -z "$current_url" ]]; then
+      local new_registry
+      new_registry=$(jq \
+        --arg name "$name" --arg url "$existing_remote" \
+        '.plugins[$name].url = $url | .plugins[$name].local = false' \
+        "$REGISTRY_FILE")
+      echo "$new_registry" > "$REGISTRY_FILE"
+    fi
+
+    info "Plugin '${name}' pushed to ${existing_remote}."
+
+  else
+    # No remote — create new GitHub repo and push
+    local repo_name="${org:+${org}/}${name}"
+
+    info "Creating GitHub repository '${repo_name}' (${visibility})..."
+
+    gh repo create "$repo_name" \
+      --source="$plugin_dir" \
+      --remote=origin \
+      "--${visibility}" \
+      --push 2>&1 | sed 's/^/    /'
+
+    local repo_url
+    repo_url=$(git -C "$plugin_dir" remote get-url origin 2>/dev/null || echo "")
+
+    # Update plugin.json repository field and commit the change
+    if [[ -n "$repo_url" ]]; then
+      local updated_json
+      updated_json=$(jq --arg url "$repo_url" '.repository = $url' "${plugin_dir}/plugin.json")
+      echo "$updated_json" > "${plugin_dir}/plugin.json"
+      git -C "$plugin_dir" add plugin.json
+      git -C "$plugin_dir" commit --quiet -m "chore: add repository url to manifest" 2>/dev/null || true
+      git -C "$plugin_dir" push --quiet origin 2>/dev/null || true
+    fi
+
+    # Update registry
+    local new_registry
+    new_registry=$(jq \
+      --arg name "$name" --arg url "${repo_url:-}" \
+      '.plugins[$name].url = $url | .plugins[$name].local = false' \
+      "$REGISTRY_FILE")
+    echo "$new_registry" > "$REGISTRY_FILE"
+
+    echo ""
+    info "Plugin '${name}' published!"
+    [[ -n "$repo_url" ]] && info "Repository: ${repo_url}"
+    echo ""
+    echo "  Others can install it with:"
+    echo "    plugin install ${repo_url:-<repository-url>}"
+  fi
+}
+
+# ================================================================
 # help
 # ================================================================
 cmd_help() {
@@ -605,6 +868,7 @@ cmd_help() {
 
     list
         Show all installed plugins with versions and descriptions.
+        Plugins with no remote origin are marked [local].
 
     docs [name]
         Show documentation for a plugin. Without a name, lists
@@ -615,6 +879,17 @@ cmd_help() {
 
     audit <name>
         Print lib/shell.sh so you can review it before sourcing.
+
+    new <name> [--description <desc>] [--author <author>] [--version <ver>]
+        Scaffold a new plugin in .plugins/<name>/ with full directory
+        structure, starter files, and an initial git commit.
+        Prompts interactively for any fields not supplied as flags.
+
+    publish <name> [--public|--private] [--org <org>]
+        Push a locally developed plugin to GitHub.
+        Creates a new GitHub repo if no remote is configured.
+        Updates plugin.json with the repository URL after publishing.
+        Requires 'gh auth login' on the host (or GH_TOKEN env var).
 
     help
         Show this message.
@@ -650,6 +925,8 @@ main() {
     docs)          cmd_docs "$@" ;;
     check-updates) cmd_check_updates "$@" ;;
     audit)         cmd_audit "$@" ;;
+    new)           cmd_new "$@" ;;
+    publish)       cmd_publish "$@" ;;
     help|--help|-h) cmd_help ;;
     *) echo "  [plugin] Unknown subcommand: ${subcmd}" >&2; cmd_help; exit 1 ;;
   esac

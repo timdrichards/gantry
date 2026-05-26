@@ -148,7 +148,7 @@ reload-env() {
 plugin() {
   bash /workspace/.devcontainer/scripts/plugin-manager.sh "$@"
   local rc=$?
-  if [[ $rc -eq 0 && ( "$1" == "install" || "$1" == "remove" || "$1" == "update" ) ]]; then
+  if [[ $rc -eq 0 && ( "$1" == "install" || "$1" == "remove" || "$1" == "update" || "$1" == "new" ) ]]; then
     [[ -f /workspace/.plugins/.loader.sh ]] && source /workspace/.plugins/.loader.sh
   fi
   return $rc
