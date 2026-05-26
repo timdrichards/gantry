@@ -36,6 +36,8 @@ volumes:
   mysql-data:
   rabbitmq-data:
   elasticsearch-data:
+  caddy-data:
+  caddy-config:
   devcontainer-bashhistory:
 
     # ----------------------------------------------------------------
@@ -235,6 +237,29 @@ services:
       webdev:
         aliases:
           - grafana
+
+  # --------------------------------------------------------------
+  # Caddy  (profile: caddy)
+  # Automatic HTTPS reverse proxy — admin API at :2019
+  # Caddyfile: .devcontainer/services/caddy/Caddyfile
+  # NOTE: conflicts with nginx on ports 80/443 — run one or the other
+  # --------------------------------------------------------------
+  caddy:
+    image: caddy:alpine
+    profiles: [ caddy ]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"
+    volumes:
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      webdev:
+        aliases:
+          - caddy
 
   # --------------------------------------------------------------
   # Nginx reverse-proxy stub  (profile: nginx)

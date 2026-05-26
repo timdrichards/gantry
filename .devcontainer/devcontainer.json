@@ -420,13 +420,15 @@
     27017, // MongoDB
     11211, // Memcached
     9200,  // Elasticsearch
-    4369   // Erlang (RabbitMQ / BEAM)
+    4369,  // Erlang (RabbitMQ / BEAM)
+    2019   // Caddy admin API
   ],
   "portsAttributes": {
     "3000": { "label": "App (3000)", "onAutoForward": "notify" },
     "5173": { "label": "Vite Dev Server", "onAutoForward": "notify" },
     "8080": { "label": "HTTP Alt", "onAutoForward": "silent" },
-    "9090": { "label": "Prometheus", "onAutoForward": "silent" }
+    "9090": { "label": "Prometheus", "onAutoForward": "silent" },
+    "2019": { "label": "Caddy Admin API", "onAutoForward": "silent" }
   },
 
   // ----------------------------------------------------------------

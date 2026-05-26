@@ -1,0 +1,52 @@
+# ================================================================
+# Caddyfile — dev container reverse proxy
+#
+# Caddy proxies incoming HTTP/HTTPS to your app running inside
+# the devcontainer service.  In a local dev environment Caddy
+# issues a self-signed certificate via its internal CA, so
+# browsers will show an "untrusted" warning — this is expected.
+#
+# To trust the cert locally:
+#   dexb caddy
+#   caddy trust          # installs Caddy's root CA on the container
+# Then export and trust the CA on your host machine if needed.
+#
+# Reference: https://caddyserver.com/docs/caddyfile
+# ================================================================
+
+# ----------------------------------------------------------------
+# Global options
+# ----------------------------------------------------------------
+{
+  # Admin API — accessible at http://localhost:2019 from the host
+  admin 0.0.0.0:2019
+
+  # Use Caddy's internal CA for dev certificates (no ACME challenge)
+  local_certs
+}
+
+# ----------------------------------------------------------------
+# Default site — proxy to the app on port 3000
+# ----------------------------------------------------------------
+:80, :443 {
+  reverse_proxy devcontainer:3000 {
+    header_up Host {host}
+    header_up X-Real-IP {remote_host}
+    header_up X-Forwarded-For {remote_host}
+    header_up X-Forwarded-Proto {scheme}
+  }
+}
+
+# ----------------------------------------------------------------
+# Examples — uncomment to add named virtual hosts
+# ----------------------------------------------------------------
+
+# api.localhost {
+#   reverse_proxy devcontainer:4000
+# }
+
+# ws.localhost {
+#   reverse_proxy devcontainer:3001 {
+#     # WebSocket support is automatic in Caddy
+#   }
+# }
