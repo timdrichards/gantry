@@ -24,181 +24,74 @@
   "customizations": {
     "vscode": {
       "extensions": [
-
-        // ── TypeScript & JavaScript ────────────────────────────────
-        // Official TS language service (nightly — always latest features)
         "ms-vscode.vscode-typescript-next",
-        // ESLint integration — inline lint errors as you type
         "dbaeumer.vscode-eslint",
-        // Prettier — opinionated code formatter
         "esbenp.prettier-vscode",
-        // Import cost — shows bundle size of each import inline
         "wix.vscode-import-cost",
-        // Auto-rename paired HTML/JSX tags
         "formulahendry.auto-rename-tag",
-        // Auto-close HTML tags
         "formulahendry.auto-close-tag",
-        // Path IntelliSense — autocomplete file paths in import statements
         "christian-kohler.path-intellisense",
-        // npm IntelliSense — autocomplete node_modules in import statements
         "christian-kohler.npm-intellisense",
-        // npm script runner sidebar
-        "eg2.vscode-npm-script",
-        // Inline type hints and parameter names
         "nrwl.angular-console",
-
-        // ── Frontend / CSS ─────────────────────────────────────────
-        // Tailwind CSS IntelliSense — class autocomplete, hover previews
         "bradlc.vscode-tailwindcss",
-        // PostCSS language support
         "csstools.postcss",
-        // Styled-components syntax highlighting + IntelliSense
         "styled-components.vscode-styled-components",
-        // Color highlight — shows color swatches inline in CSS/JS
         "naumovs.color-highlight",
-        // Color picker — click any color value to open a picker
         "anseki.vscode-color",
-        // CSS variable autocomplete
         "phoenisx.cssvar",
-
-        // ── HTML / Templating ──────────────────────────────────────
-        // HTMX attribute IntelliSense (used in CS 326 stack)
         "otovo-oss.htmx-tags",
-        // Emmet is built-in; this extends it for JSX
         "baldurk.emmet-jsx",
-        // Highlight matching HTML tags
         "vincaslt.highlight-matching-tag",
-        // Better HTML language features
-        "mkaufman.htmlhint",
-
-        // ── Node.js / Backend ──────────────────────────────────────
-        // Node.js module IntelliSense for require/import
         "leizongmin.node-module-intellisense",
-        // DotENV — syntax highlighting for .env files
         "mikestead.dotenv",
-        // Prisma schema language support + formatting
         "Prisma.prisma",
-        // PM2 process manager sidebar
         "technomancy.pm2",
-
-        // ── Database Clients ───────────────────────────────────────
-        // Database client — PostgreSQL, MySQL, SQLite, Redis in one panel
         "cweijan.vscode-database-client2",
-        // MongoDB — official extension (Playgrounds, schema view, CRUD)
         "mongodb.mongodb-vscode",
-        // SQLite viewer for .sqlite / .db files
         "qwtel.sqlite-viewer",
-        // Prisma ERD visualizer
         "daniel-b.prisma-preview",
-
-        // ── HTTP / API Testing ─────────────────────────────────────
-        // REST Client — send .http files directly from the editor
         "humao.rest-client",
-        // Thunder Client — lightweight Postman alternative built into VS Code
         "rangav.vscode-thunder-client",
-        // OpenAPI / Swagger preview and editing
         "42crunch.vscode-openapi",
-        // GraphQL syntax highlighting + schema IntelliSense
         "GraphQL.vscode-graphql",
         "GraphQL.vscode-graphql-syntax",
-
-        // ── Docker & Containers ────────────────────────────────────
-        // Official Docker extension — image/container management, Dockerfile IntelliSense
         "ms-azuretools.vscode-docker",
-        // Docker Compose syntax highlighting and IntelliSense
         "p1c2u.docker-compose",
-        // Kubernetes (handy if you scale up to k8s)
         "ms-kubernetes-tools.vscode-kubernetes-tools",
-        // Remote Containers (already present outside container, useful reference)
         "ms-vscode-remote.remote-containers",
-
-        // ── Git & Version Control ──────────────────────────────────
-        // GitLens — blame, history, PR decorations, powerful git UI
         "eamodio.gitlens",
-        // Git Graph — visualise branch topology
         "mhutchie.git-graph",
-        // Git History — file and line history
         "donjayamanne.githistory",
-        // GitHub Pull Requests — review PRs without leaving VS Code
         "GitHub.vscode-pull-request-github",
-        // GitHub Copilot (optional — students may have student pack access)
-        // "GitHub.copilot",
-
-        // ── Testing ───────────────────────────────────────────────
-        // Vitest — inline test results and coverage
         "vitest.explorer",
-        // Jest — runner for projects using Jest
         "Orta.vscode-jest",
-        // Test Explorer UI — unified sidebar for all test frameworks
         "hbenl.vscode-test-explorer",
-        // Coverage Gutters — shows line coverage in the gutter
         "ryanluker.vscode-coverage-gutters",
-
-        // ── Debugging ─────────────────────────────────────────────
-        // Node.js debug auto-attach (built-in, surfaced here for awareness)
-        // JavaScript Debugger is bundled; these extend it:
-        // Browser preview — debug Chrome/Edge directly inside VS Code
         "ms-edgedevtools.vscode-edge-devtools",
-
-        // ── Code Quality & Linting ─────────────────────────────────
-        // Error Lens — shows errors/warnings inline at end of the line
         "usernamehw.errorlens",
-        // SonarLint — detects bugs and code smells as you type
         "SonarSource.sonarlint-vscode",
-        // Code Spell Checker — catches typos in identifiers, comments, strings
         "streetsidesoftware.code-spell-checker",
-        // TODO Tree — aggregates TODO/FIXME/HACK comments into a sidebar panel
         "gruntfuggly.todo-tree",
-
-        // ── Performance & Profiling ────────────────────────────────
-        // Flame graph / CPU profiler viewer for Node.js .cpuprofile files
         "ms-vscode.vscode-js-profile-flame",
-
-        // ── Data Formats ───────────────────────────────────────────
-        // YAML — IntelliSense, validation, formatting (docker-compose, k8s, CI)
         "redhat.vscode-yaml",
-        // TOML syntax highlighting
         "tamasfe.even-better-toml",
-        // Rainbow CSV — colorizes CSV/TSV columns, supports SQL-like queries
         "mechatroner.rainbow-csv",
-        // JSON schema validation and IntelliSense (extends built-in)
         "ZainChen.one-json",
-        // Paste JSON as TypeScript types
         "quicktype.quicktype",
-
-        // ── Shell & Terminal ───────────────────────────────────────
-        // Bash IDE — language server for shell scripts (shellcheck integration)
         "mads-hartmann.bash-ide-vscode",
-        // ShellCheck — shell script linting
         "timonwong.shellcheck",
-        // Shell Format — shfmt formatter for bash/sh scripts
         "foxundermoon.shell-format",
-
-        // ── Markdown & Documentation ───────────────────────────────
-        // Markdown All-in-One — shortcuts, TOC generation, preview
         "yzhang.markdown-all-in-one",
-        // Mermaid diagrams in Markdown preview
         "bierner.markdown-mermaid",
-        // Mermaid diagram editor with live preview
         "tomoyukim.vscode-mermaid-editor",
-
-        // ── Productivity & UI ──────────────────────────────────────
-        // Material Icon Theme — distinctive icons for every file type
         "PKief.material-icon-theme",
-        // Indent Rainbow — colorizes indentation levels
         "oderwat.indent-rainbow",
-        // Bracket Pair Colorizer (built into VS Code since 1.67 — enable via setting)
-        // Project Manager — switch between projects quickly
         "alefragnani.project-manager",
-        // Live Share — real-time collaborative editing (great for pair programming)
         "ms-vsliveshare.vsliveshare",
-        // Better Comments — color-coded comment annotations (!, ?, TODO, *)
         "aaron-bond.better-comments",
-        // Bookmarks — mark lines and jump between them
         "alefragnani.bookmarks",
-        // Output Colorizer — adds color to VS Code's Output panel logs
-        "IBM.output-colorizer"
-
+        "IBM.output-colorizer",
+        "HTMLHint.vscode-htmlhint"
       ],
 
       // ── Settings ─────────────────────────────────────────────────
