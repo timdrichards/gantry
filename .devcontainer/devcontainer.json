@@ -105,9 +105,10 @@
         "editor.fontSize": 13,
         "editor.tabSize": 2,
         "editor.insertSpaces": true,
-        "editor.wordWrap": "on",
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 80,
+        "editor.rulers": [80],
         "editor.minimap.enabled": false,
-        "editor.rulers": [100],
         "editor.cursorBlinking": "smooth",
         "editor.smoothScrolling": true,
         "editor.linkedEditing": true,
@@ -197,7 +198,9 @@
           "**/node_modules": true,
           "**/.git": true,
           "**/dist": true,
-          "**/.cache": true
+          "**/.cache": true,
+          ".devcontainer": true,
+          ".plugins": true
         },
         "search.exclude": {
           "**/node_modules": true,

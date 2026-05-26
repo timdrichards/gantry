@@ -16,6 +16,7 @@ A VS Code dev container configuration template for a web programming / scalable 
 ├── shell/.bashrc_devcontainer # Aliases/functions sourced in every container bash session
 ├── scripts/post-create.sh     # Runs once after image build
 ├── scripts/post-start.sh      # Runs on every container start
+├── scripts/plugin-manager.sh  # Plugin management (install/remove/update/list/docs)
 ├── services/                  # Config files bind-mounted into specific sidecars
 │   ├── caddy/Caddyfile
 │   ├── mongo/init/01-init.js
@@ -37,6 +38,7 @@ A VS Code dev container configuration template for a web programming / scalable 
 | `shell/.bashrc_devcontainer` | `source /etc/bash_devcontainer` — no rebuild |
 | `scripts/post-create.sh` | Rebuild (runs once, at build time) |
 | `scripts/post-start.sh` | Container restart — no rebuild |
+| `scripts/plugin-manager.sh` | No rebuild — called fresh as `bash ...` on every invocation |
 | `services/*` config files | Restart the affected sidecar — no rebuild |
 
 ## Architecture
@@ -59,6 +61,46 @@ The host Docker socket (`/var/run/docker.sock`) is bind-mounted into the devcont
 
 ### `${LOCAL_WORKSPACE_FOLDER}` in docker-compose.yml
 Used in volume bind mounts for service config files (e.g., `${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/postgres/init`). VS Code passes this as a host environment variable when invoking docker compose. On Windows, Docker Desktop handles path translation automatically.
+
+## Plugin System
+
+Plugins live in `/workspace/.plugins/` (bind-mounted, persists without rebuild, hidden from VS Code explorer).
+
+### Key Locations
+- **Registry**: `/workspace/.plugins/.registry.json` — tracks installed plugins with URL, pin, and install timestamp
+- **Loader**: `/workspace/.plugins/.loader.sh` — auto-generated; sourced at every login; adds `bin/` to PATH, sources `lib/shell.sh`, exports `env` vars
+- **Manager script**: `.devcontainer/scripts/plugin-manager.sh` — called fresh via `bash ...` on each invocation via the `plugin()` shell function
+
+### Plugin Repo Structure
+Each plugin is a git repo cloned into `/workspace/.plugins/<name>/`:
+```
+plugin-name/
+├── plugin.json      # Manifest: name, version, description, author, repository, dependencies, env
+├── bin/             # Executables added to PATH
+├── lib/shell.sh     # Aliases/functions sourced at login
+└── docs/README.md   # Documentation
+```
+
+### Plugin Commands
+- `plugin install <git-url> [--pin <ref>]` — clone, validate, confirm shell.sh, install
+- `plugin remove <name>` — remove directory and deregister
+- `plugin update [name|--all]` — git pull; tag-pinned plugins are skipped (immutable)
+- `plugin list` — tabular view: name, version, git hash, pin, description
+- `plugin docs [name]` — view `docs/README.md` with bat/less; without name lists summaries
+- `plugin check-updates` — fetch and compare HEAD vs origin for each plugin
+- `plugin audit <name>` — print `lib/shell.sh` contents for review before sourcing
+- `plugin help` — full usage guide
+
+### Security Model
+- Non-HTTPS URLs prompt a warning and require confirmation
+- Manifest validation enforces required fields (`name`, `version`, `description`)
+- Plugin names restricted to `[a-zA-Z0-9_-]` — prevents path traversal
+- `plugin audit <name>` lets users inspect `lib/shell.sh` before it is ever sourced
+- All plugin code runs as `vscode` user — no root escalation
+- Dependency loop detection via `$PLUGIN_DEP_CHAIN` environment variable
+
+### Auto-Update
+`post-start.sh` runs `plugin update --all --quiet` in the background on every container start. Tag-pinned plugins are always skipped. Network failures are silently ignored.
 
 ## Key Shell Functions
 

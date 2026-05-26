@@ -40,3 +40,12 @@ else
   echo "   Windows   — set GH_TOKEN in host environment variables then rebuild"
   echo "   Or        — run 'gh auth login' directly in this terminal"
 fi
+
+# ---- Auto-update plugins (background) --------------------------
+if [[ -f /workspace/.plugins/.registry.json ]]; then
+  plugin_count=$(jq '.plugins | length' /workspace/.plugins/.registry.json 2>/dev/null || echo 0)
+  if [[ "$plugin_count" -gt 0 ]]; then
+    echo "🔌 Auto-updating ${plugin_count} plugin(s) in background..."
+    bash /workspace/.devcontainer/scripts/plugin-manager.sh update --all --quiet &
+  fi
+fi
