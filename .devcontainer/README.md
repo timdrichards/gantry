@@ -190,6 +190,20 @@ Multi-stage build (single stage in practice). Steps:
 
 To upgrade Node.js, change `ARG NODE_VERSION` in the Dockerfile and rebuild the container.
 
+**Dockerfile build steps summary:**
+
+| Step | Purpose |
+|---|---|
+| 1 | Base system packages (apt) |
+| 2 | Node.js via NodeSource |
+| 3 | Global npm packages |
+| 4 | Docker CLI + Compose plugin |
+| 5 | GitHub CLI (`gh`) |
+| 6 | Additional CLI tools (k6, mongosh, grpcurl, websocat, xh) |
+| 7 | Shell ergonomics (copy `.bashrc_devcontainer`) |
+| 8 | User setup (docker group, passwordless sudo) |
+| 9 | Working directory + user switch |
+
 ### shell/.bashrc_devcontainer
 
 Sourced by every bash session inside the devcontainer (via `/etc/bash.bashrc`). Contains:
@@ -218,6 +232,7 @@ Runs **every time** the container starts (including after a VS Code window reloa
 1. Verifies the Docker socket is accessible
 2. Prints all currently running containers
 3. Prints all containers on the `webdev` network with their IP addresses
+4. Checks `gh auth status` and prints the authenticated user, or a platform-specific warning if not authenticated
 
 ---
 
@@ -370,6 +385,87 @@ Key editor settings applied globally inside the container:
 | 4318 | Jaeger OTLP HTTP |
 
 Add more ports to `forwardPorts` in `devcontainer.json` as needed. `portsAttributes` controls the label and `onAutoForward` behaviour (`notify`, `silent`, `openBrowser`).
+
+---
+
+## GitHub CLI Authentication
+
+`gh` is pre-installed in the container. Authentication is shared from the host automatically on Mac and Linux. On Windows, a token must be passed explicitly.
+
+### Mac / Linux
+
+No setup required. `devcontainer.json` bind-mounts `~/.config/gh` from the host into the container, so if you are already authenticated on the host (`gh auth status` returns OK), the container inherits that auth on every start.
+
+If you are not yet authenticated on the host:
+
+```bash
+gh auth login   # run on the host, not inside the container
+```
+
+Then rebuild the container once so the mount picks up the new config.
+
+### Windows
+
+`gh` on Windows stores its auth config in `%APPDATA%\GitHub CLI`, not in `~/.config/gh`, so the bind-mount does not apply.
+
+Instead, set `GH_TOKEN` as a persistent environment variable on your host:
+
+1. Generate a personal access token at **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**. Grant it the scopes your work needs (at minimum: `repo`, `read:org`).
+2. Add it to your host environment:
+   - **Windows**: System → Advanced system settings → Environment Variables → add `GH_TOKEN = <your-token>` under user variables.
+   - **PowerShell** (current session only): `$env:GH_TOKEN = "your-token"`
+3. Rebuild the container — `devcontainer.json` forwards `GH_TOKEN` via `remoteEnv`, and `gh` will pick it up automatically.
+
+### Verifying inside the container
+
+```bash
+gh auth status
+gh api user --jq .login
+```
+
+`post-start.sh` also prints the authenticated username (or a warning) every time the container starts.
+
+### Running gh auth login inside the container
+
+If you prefer, you can skip host-side setup entirely and run `gh auth login` directly in a container terminal. Use the browser flow (`HTTPS + Login with browser`) or a token. The config will persist for the lifetime of the container but will not survive a rebuild unless the `~/.config/gh` bind-mount is in place (Mac/Linux).
+
+---
+
+## git push from inside the container
+
+`git push` works for both HTTPS and SSH remotes.
+
+### HTTPS remotes (`https://github.com/…`)
+
+`post-create.sh` runs `gh auth setup-git` automatically. This registers `gh` as the Git credential helper for GitHub HTTPS URLs, so `git push` silently obtains a token from the already-authenticated `gh` — no password prompts.
+
+Verify the helper is wired up:
+
+```bash
+git config --list | grep credential
+# should include: credential.https://github.com.helper=!gh auth git-credential
+```
+
+### SSH remotes (`git@github.com:…`)
+
+`devcontainer.json` bind-mounts `~/.ssh` from the host into the container. `post-start.sh` normalises file permissions on every start (SSH rejects keys whose permissions are too open, which can happen when Docker copies permissions from a Windows host).
+
+Verify SSH auth works:
+
+```bash
+ssh -T git@github.com
+# Hi <username>! You've successfully authenticated...
+```
+
+If that fails, check that your SSH key is added to your GitHub account and that the key file exists at `~/.ssh` on the **host** machine (not just inside the container).
+
+### Windows note
+
+The `~/.ssh` mount path resolves to `%USERPROFILE%\.ssh` on Windows, which is where the Windows OpenSSH client stores keys. This should work correctly via Docker Desktop's path translation. If SSH still fails, confirm the key permissions are `600` inside the container:
+
+```bash
+ls -la ~/.ssh
+```
 
 ---
 

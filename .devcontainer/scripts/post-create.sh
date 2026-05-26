@@ -26,4 +26,10 @@ if [[ -f /workspace/prisma/schema.prisma ]]; then
   cd /workspace && npx prisma generate
 fi
 
+# ---- Configure gh as Git credential helper (HTTPS remotes) ----
+# This means `git push` over HTTPS works automatically once gh is authed.
+if command -v gh &>/dev/null; then
+  gh auth setup-git 2>/dev/null || true
+fi
+
 echo "✅ post-create complete."

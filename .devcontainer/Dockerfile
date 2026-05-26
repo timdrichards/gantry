@@ -129,7 +129,19 @@ RUN ln -sf /usr/libexec/docker/cli-plugins/docker-compose \
            /usr/local/bin/docker-compose
 
 # ------------------------------------------------------------
-# 5. Additional CLI tools
+# 5. GitHub CLI
+# ------------------------------------------------------------
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+       | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] \
+       https://cli.github.com/packages stable main" \
+       > /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends gh \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------
+# 6. Additional CLI tools
 # ------------------------------------------------------------
 
 # k6 — load / performance testing (arch-aware; apt repo only ships amd64)
@@ -179,20 +191,20 @@ RUN ARCH=$(dpkg --print-architecture) \
       | tar -xz --strip-components=1 -C /usr/local/bin --wildcards '*/xh' || true
 
 # ------------------------------------------------------------
-# 6. Shell ergonomics
+# 7. Shell ergonomics
 # ------------------------------------------------------------
 COPY shell/.bashrc_devcontainer /etc/bash_devcontainer
 RUN echo 'source /etc/bash_devcontainer' >> /etc/bash.bashrc
 
 # ------------------------------------------------------------
-# 7. User setup — add vscode user to docker group (DinD)
+# 8. User setup — add vscode user to docker group (DinD)
 # ------------------------------------------------------------
 RUN groupadd -f docker \
     && usermod -aG docker ${USERNAME} \
     && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/${USERNAME}
 
 # ------------------------------------------------------------
-# 8. Working directory
+# 9. Working directory
 # ------------------------------------------------------------
 WORKDIR /workspace
 USER ${USERNAME}
