@@ -447,14 +447,25 @@ Key sections of the default Caddyfile:
 
 | Section | Purpose |
 |---|---|
-| `admin 0.0.0.0:2019` | Enables the Caddy admin API, reachable at `http://localhost:2019` from the host |
+| `admin 0.0.0.0:2019` | Enables the Caddy admin API, reachable at `http://caddy:2019` from the host |
 | `local_certs` | Issues certificates via Caddy's internal CA instead of Let's Encrypt (no ACME challenge needed) |
 | `:80, :443 { reverse_proxy devcontainer:3000 }` | Default catch-all site proxied to the app |
+
+**Accessing the admin API**
+
+The Caddy admin API is a REST interface, not a browser UI. Direct browser navigation returns an origin error because browsers omit the `Origin` header on plain navigation requests, which Caddy's CSRF protection blocks by design. Use `curl` instead:
+
+```bash
+curl http://caddy:2019/config/ | jq .
+curl http://caddy:2019/reverse_proxy/upstreams | jq .
+```
+
+Alternatively, use the VS Code REST Client extension (`.http` file) or Thunder Client — both send proper request headers.
 
 **Reload config without restarting:**
 
 ```bash
-curl -s http://localhost:2019/load \
+curl -s http://caddy:2019/load \
   -H "Content-Type: text/caddyfile" \
   --data-binary @.devcontainer/services/caddy/Caddyfile
 ```

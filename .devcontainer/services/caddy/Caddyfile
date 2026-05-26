@@ -18,7 +18,10 @@
 # Global options
 # ----------------------------------------------------------------
 {
-  # Admin API — accessible at http://localhost:2019 from the host
+  # Admin API — accessible at http://caddy:2019 from inside the devcontainer.
+  # NOTE: direct browser navigation won't work (Caddy's CSRF protection
+  # blocks requests with no Origin header).  Use curl or REST Client instead:
+  #   curl http://caddy:2019/config/ | jq .
   admin 0.0.0.0:2019
 
   # Use Caddy's internal CA for dev certificates (no ACME challenge)
