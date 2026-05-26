@@ -8,3 +8,5 @@ build/
 .claude
 NOTES.md
 .bashrc.user
+.plugins/*
+!.plugins/.registry.json
