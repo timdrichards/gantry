@@ -388,6 +388,36 @@ Add more ports to `forwardPorts` in `devcontainer.json` as needed. `portsAttribu
 
 ---
 
+## Platform-Specific Notes
+
+### Elasticsearch on Linux and WSL2 (Windows)
+
+Elasticsearch 8.x requires the kernel parameter `vm.max_map_count ≥ 262144`. Docker Desktop on macOS sets this automatically inside its VM. On a native Linux host or Windows (WSL2), the default is 65530 and Elasticsearch will crash at startup with a memory mapping error.
+
+**One-time fix — apply on the host, not inside the container:**
+
+```bash
+# Linux host
+sudo sysctl -w vm.max_map_count=262144
+
+# WSL2 (Windows) — run in a WSL2 terminal
+sudo sysctl -w vm.max_map_count=262144
+```
+
+**To persist across reboots:**
+
+```bash
+# Linux
+echo "vm.max_map_count=262144" | sudo tee /etc/sysctl.d/99-elasticsearch.conf
+
+# WSL2 — add to /etc/sysctl.conf inside WSL2
+echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+```
+
+macOS users (Docker Desktop) do not need this step.
+
+---
+
 ## GitHub CLI Authentication
 
 `gh` is pre-installed in the container. Authentication is shared from the host automatically on Mac and Linux. On Windows, a token must be passed explicitly.

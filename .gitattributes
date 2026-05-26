@@ -1,0 +1,10 @@
+# Normalise line endings on commit; check out with platform-native endings
+* text=auto
+
+# Shell scripts and config files must always use LF
+# A CRLF line ending in a bash script causes immediate failure: $'\r': command not found
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+Caddyfile   text eol=lf

@@ -32,7 +32,6 @@
         "formulahendry.auto-close-tag",
         "christian-kohler.path-intellisense",
         "christian-kohler.npm-intellisense",
-        "nrwl.angular-console",
         "bradlc.vscode-tailwindcss",
         "csstools.postcss",
         "styled-components.vscode-styled-components",
@@ -315,7 +314,6 @@
     9200,  // Elasticsearch
     4369,  // Erlang (RabbitMQ / BEAM)
     2019,  // Caddy admin API
-    11211, // Memcached
     1025,  // Mailpit SMTP
     8025,  // Mailpit web UI
     9000,  // MinIO API
@@ -361,11 +359,15 @@
   //            will be forwarded here via remoteEnv.
   // ----------------------------------------------------------------
   "mounts": [
-    // gh auth config — Mac/Linux: shares existing `gh auth login` from host
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached",
-    // SSH keys — needed for git push over SSH (git@github.com remotes)
-    // post-start.sh normalises file permissions inside the container
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+    // gh auth config — shares existing `gh auth login` from the host.
+    // Uses HOME only (not USERPROFILE) to avoid double-concatenation on
+    // Windows machines where Git for Windows sets both variables.
+    // Windows users: ensure HOME=%USERPROFILE% is set (Git for Windows
+    // does this automatically), or use the GH_TOKEN fallback in remoteEnv.
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached",
+    // SSH keys — needed for git push over SSH (git@github.com remotes).
+    // post-start.sh normalises file permissions inside the container.
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
   ],
 
   // ----------------------------------------------------------------

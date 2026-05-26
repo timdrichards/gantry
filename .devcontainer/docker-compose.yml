@@ -57,8 +57,10 @@ services:
     volumes:
       # Mount workspace source
       - ..:/workspace:cached
-      # Docker socket for DinD (Docker-outside-of-Docker)
-      # TODO: does this work on Windows?
+      # Docker socket (Docker-outside-of-Docker).
+      # Works on Mac, Linux, and Windows (Docker Desktop WSL2 backend)
+      # because Docker Desktop exposes the daemon at this same Unix socket
+      # path inside its Linux VM — no Windows-specific path needed.
       - /var/run/docker.sock:/var/run/docker.sock
       # Persist shell history across rebuilds
       - devcontainer-bashhistory:/commandhistory
@@ -90,6 +92,11 @@ services:
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/postgres/init:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d devdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       webdev:
         aliases:
@@ -132,6 +139,11 @@ services:
       - redis-data:/data
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       webdev:
         aliases:
@@ -155,6 +167,11 @@ services:
       - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dev", "-pdevpassword"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       webdev:
         aliases:
@@ -195,10 +212,19 @@ services:
       discovery.type: single-node
       ELASTIC_PASSWORD: devpassword
       xpack.security.enabled: "false"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       webdev:
         aliases:
@@ -293,6 +319,11 @@ services:
       - "8081:8081"
       - "8082:8082"
       - "9644:9644"
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       webdev:
         aliases:
@@ -304,7 +335,8 @@ services:
     profiles: [ redpanda, full ]
     restart: unless-stopped
     depends_on:
-      - redpanda
+      redpanda:
+        condition: service_healthy
     volumes:
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/redpanda/console-config.yml:/etc/redpanda-console/config.yml:ro
     environment:

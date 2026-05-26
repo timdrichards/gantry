@@ -21,7 +21,7 @@ shopt -s histappend
 
 # ---- Convenience aliases — Docker / Compose --------------------
 alias d='docker'
-alias dc='docker compose -f /workspace/.devcontainer/docker-compose.yml --project-name "$(basename "${LOCAL_WORKSPACE_FOLDER}")_devcontainer"'
+alias dc='docker compose -f /workspace/.devcontainer/docker-compose.yml --project-name "$(basename "$(echo "${LOCAL_WORKSPACE_FOLDER}" | tr "\\\\" "/")")_devcontainer"'
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
 alias dlog='docker logs -f'
 alias dex='docker exec -it'
