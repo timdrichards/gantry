@@ -124,6 +124,22 @@ export PATH="$HOME/.local/bin:$PATH"
 export NODE_ENV=development
 export FORCE_COLOR=1
 
+# ---- User customization ----------------------------------------
+# Edit /workspace/.bashrc.user to add your own aliases, variables,
+# and functions. Run `reload-env` to apply changes in the current
+# terminal without restarting the container.
+_USER_BASHRC=/workspace/.bashrc.user
+[[ -f "$_USER_BASHRC" ]] && source "$_USER_BASHRC"
+
+reload-env() {
+  if [[ -f /workspace/.bashrc.user ]]; then
+    source /workspace/.bashrc.user
+    echo "  Reloaded /workspace/.bashrc.user"
+  else
+    echo "  /workspace/.bashrc.user not found — nothing to reload."
+  fi
+}
+
 # ---- Welcome banner --------------------------------------------
 echo ""
 echo "  ╔══════════════════════════════════════════════════╗"

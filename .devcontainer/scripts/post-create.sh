@@ -32,4 +32,25 @@ if command -v gh &>/dev/null; then
   gh auth setup-git 2>/dev/null || true
 fi
 
+# ---- Create user bashrc if it doesn't exist --------------------
+if [[ ! -f /workspace/.bashrc.user ]]; then
+  cat > /workspace/.bashrc.user << 'BASHRC'
+# ================================================================
+# User Shell Customization — /workspace/.bashrc.user
+# ================================================================
+# Add your own aliases, environment variables, and functions here.
+#
+#   • Run `reload-env` in any open terminal to apply changes.
+#   • New terminals will load this file automatically.
+#   • This file is gitignored by default. Remove the .gitignore
+#     entry if you want to commit your customizations.
+# ================================================================
+
+# Examples (uncomment to use):
+# alias ll='ls -lAh --color=auto'
+# export MY_API_KEY=...
+# my-func() { echo "hello"; }
+BASHRC
+fi
+
 echo "✅ post-create complete."
