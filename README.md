@@ -1,242 +1,555 @@
-# Dev Container — Web Programming & Scalable Web Systems
+# Course Dev Environment — Getting Started
 
-A fully-featured VS Code Dev Container for COMPSCI 326 / 426 coursework.
-Docker-in-Docker enabled. All services share the `webdev` network and are
-reachable by hostname from the VS Code integrated terminal.
+Welcome! This guide will get your development environment up and running, even if you have never used Docker or a dev container before. Read through each section in order the first time — it only takes about 10 minutes.
 
 ---
 
-## Quick Start
+## What is this, exactly?
 
-1. **Prerequisites** — install on your host machine:
-   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker Engine on Linux)
-   - [VS Code](https://code.visualstudio.com/)
-   - [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+When you open this project in VS Code, it automatically builds a **Linux environment** that runs inside your computer. Think of it like a virtual machine, but lighter and faster. Inside that environment you get:
 
-2. **Open the project:**
-   ```
-   code .
-   ```
-   VS Code will detect `.devcontainer/devcontainer.json` and prompt
-   **"Reopen in Container"** — click it.
+- **Node.js** (latest LTS) and all the tools you need for web development
+- **Optional databases** (PostgreSQL, Redis, MongoDB, MySQL, and more) that you can turn on with a single command
+- A **pre-configured terminal** with shortcuts that make common tasks faster
+- Everything needed for the course — no manual installation required
 
-3. **First build** takes 3–5 minutes (downloads base image + all tools).
-   Subsequent starts are instant.
+No matter whether you are on macOS, Windows, or Linux, everyone in the class gets the exact same environment. "It works on my machine" stops being an excuse.
 
 ---
 
-## Starting Services
+## Step 1 — Install the prerequisites
 
-From the VS Code terminal (inside the container), use the `dc-up` alias:
+You need three things installed on your computer before you start. Click each link and follow the instructions for your operating system.
+
+1. **[Docker Desktop](https://www.docker.com/products/docker-desktop/)**
+   Docker is the engine that runs the course environment. The Desktop app gives you a graphical dashboard too.
+   > **Windows users:** during installation, choose **"Use WSL 2"** if asked. After installing, open Docker Desktop once and let it finish starting up before moving on.
+
+2. **[Visual Studio Code](https://code.visualstudio.com/)**
+   The code editor for the course.
+
+3. **[Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)**
+   This VS Code extension makes the "open in container" magic work. Click the link, then click **Install**, and VS Code will open and install it automatically.
+
+Once all three are installed, make sure Docker Desktop is **running** (look for the Docker whale icon in your taskbar or menu bar) before continuing.
+
+---
+
+## Step 2 — Open the project in VS Code
+
+1. Open VS Code.
+2. Go to **File → Open Folder** and select the folder you cloned or downloaded for this course.
+3. VS Code will show a notification in the bottom-right corner:
+
+   > **"Folder contains a Dev Container configuration file. Reopen in Container?"**
+
+4. Click **"Reopen in Container"**.
+
+   If you missed the notification, open the Command Palette (`Ctrl+Shift+P` on Windows/Linux, `Cmd+Shift+P` on Mac), type **"Reopen in Container"**, and press Enter.
+
+5. **Wait for the build to finish.** The first time takes **3–5 minutes** while it downloads everything. You will see a progress bar in the bottom-right corner. Subsequent openings are almost instant.
+
+When the build finishes, VS Code reloads and you are now inside the course environment.
+
+---
+
+## Step 3 — Open the terminal
+
+The terminal is how you run code and commands. Inside VS Code:
+
+- Go to **Terminal → New Terminal** in the menu bar, or press `` Ctrl+` `` (backtick).
+
+You should see something like this:
+
+```
+  ╔══════════════════════════════════════════════════╗
+  ║  Web Dev + Scalable Systems  •  Dev Container    ║
+  ╠══════════════════════════════════════════════════╣
+  ║  Node v22.x.x  npm x.x.x  pnpm x.x.x           ║
+  ║  Docker 27.x.x                                   ║
+  ║  Plugins: 0 active  •  'plugin help'             ║
+  ╠══════════════════════════════════════════════════╣
+  ║  Network: webdev (172.28.0.0/16)                 ║
+  ║  Type 'dc-up <service>' to start services        ║
+  ...
+  ╚══════════════════════════════════════════════════╝
+
+vscode@devcontainer:/workspace$
+```
+
+That banner confirms everything is working. The `$` at the end of the last line is the **prompt** — it is waiting for you to type a command.
+
+> **New to the terminal?** The terminal works by typing a command and pressing **Enter**. Commands are case-sensitive. If something goes wrong, you can usually press `Ctrl+C` to stop whatever is running.
+
+---
+
+## How-to: Common Scenarios
+
+Work through these examples in order to get comfortable with the environment.
+
+---
+
+### Scenario 1 — Run a Node.js script
+
+Let's confirm Node.js is ready.
 
 ```bash
-# Start a single service
+node --version
+```
+
+You should see something like `v22.x.x`. Now create and run a tiny script:
+
+```bash
+echo 'console.log("Hello from the dev container!")' > hello.js
+node hello.js
+```
+
+Expected output:
+```
+Hello from the dev container!
+```
+
+---
+
+### Scenario 2 — Install npm packages and run a project
+
+If you have a `package.json` file in your workspace:
+
+```bash
+npm install
+npm run dev
+```
+
+The `npm run dev` command starts your project (exact behavior depends on the project). Press `Ctrl+C` to stop it.
+
+**Shortcuts that save typing:**
+
+| Instead of       | You can type |
+|------------------|--------------|
+| `npm install`    | `ni`         |
+| `npm run dev`    | `nrd`        |
+| `npm run`        | `nr`         |
+| `npm start`      | `ns`         |
+| `npm test`       | `nt`         |
+
+---
+
+### Scenario 3 — Start a database and connect to it
+
+Databases are **off by default** to save memory. Turn one on when you need it.
+
+**Start PostgreSQL:**
+
+```bash
 dc-up postgres
+```
+
+You will see Docker pulling the image and starting the container. Once it says the container is healthy, connect to it:
+
+```bash
+psql-dev
+```
+
+You are now inside the PostgreSQL shell. Try a quick command:
+
+```sql
+\l
+```
+
+This lists all databases. You should see `devdb` in the list. Type `\q` to exit.
+
+**Start Redis:**
+
+```bash
 dc-up redis
+redis-dev ping
+```
+
+Expected output: `PONG`
+
+**Start MongoDB:**
+
+```bash
 dc-up mongo
+mongo-dev
+```
 
-# Start multiple at once
-dc-up postgres redis mongo
+You are now in the MongoDB shell. Type `show dbs` to list databases. Type `exit` to leave.
 
-# Start everything (the 'full' profile)
-dc up -d --profile full
+**Stop everything when you're done:**
 
-# Stop everything
+```bash
 dc-down
+```
 
-# View logs for a service
+---
+
+### Scenario 4 — Check what is running
+
+```bash
+dps
+```
+
+This shows all running containers in a tidy table format. If nothing is running, you will see an empty table.
+
+To see the logs from a running service (like postgres), use:
+
+```bash
 dc-logs postgres
 ```
 
-Or use the full docker compose path from anywhere (inside or outside the container):
+Press `Ctrl+C` to stop watching logs.
+
+---
+
+### Scenario 5 — Make an HTTP request and read JSON
+
+The environment comes with several tools for working with HTTP APIs.
+
 ```bash
-docker compose -f .devcontainer/docker-compose.yml up -d postgres redis
+curl https://jsonplaceholder.typicode.com/todos/1
+```
+
+The output is JSON but it is hard to read. Pipe it through `jq` to pretty-print it:
+
+```bash
+curl https://jsonplaceholder.typicode.com/todos/1 | jq .
+```
+
+Or use the built-in shortcut `jcurl` which does both steps at once:
+
+```bash
+jcurl https://jsonplaceholder.typicode.com/todos/1
+```
+
+You can also use `xh` (a friendlier HTTP tool):
+
+```bash
+xh https://jsonplaceholder.typicode.com/todos/1
 ```
 
 ---
 
-## Network: `webdev` (172.28.0.0/16)
+### Scenario 6 — Check what ports are listening
 
-Every container resolves every other container by **service name**:
-
-| Service         | Hostname(s)              | Port(s)        | Credentials              |
-|-----------------|--------------------------|----------------|--------------------------|
-| devcontainer    | `devcontainer`           | —              | —                        |
-| PostgreSQL      | `postgres`, `db`         | 5432           | dev / devpassword        |
-| MongoDB         | `mongo`, `mongodb`       | 27017          | dev / devpassword        |
-| Redis           | `redis`, `cache`         | 6379           | —                        |
-| MySQL           | `mysql`                  | 3306           | dev / devpassword        |
-| RabbitMQ        | `rabbitmq`, `mq`         | 5672, 15672    | dev / devpassword        |
-| Elasticsearch   | `elastic`                | 9200           | (security disabled)      |
-| Prometheus      | `prometheus`             | 9090           | —                        |
-| Grafana         | `grafana`                | 3030           | admin / admin            |
-| Nginx           | `nginx`, `proxy`         | 80, 443        | —                        |
-
-### Example connection strings
+When your app is running, you might want to see what ports are in use:
 
 ```bash
-# PostgreSQL
-psql -h postgres -U dev -d devdb
-# → alias: psql-dev
+ports
+```
 
-# Redis
-redis-cli -h redis ping
-# → alias: redis-dev
+This lists every port that has something listening on it.
 
-# MongoDB
-mongosh "mongodb://dev:devpassword@mongo:27017/devdb"
-# → alias: mongo-dev
+---
 
-# Elasticsearch
-curl http://elastic:9200/_cluster/health | jq .
+## Available Services
 
-# RabbitMQ management
-open http://localhost:15672  # dev / devpassword
+Start any service with `dc-up <name>`. Stop everything with `dc-down`.
+
+| Service           | Start command           | What it is                                      |
+|-------------------|-------------------------|-------------------------------------------------|
+| PostgreSQL        | `dc-up postgres`        | Relational database. User: `dev`, Pass: `devpassword`, DB: `devdb` |
+| Redis             | `dc-up redis`           | In-memory cache and key-value store             |
+| MongoDB           | `dc-up mongo`           | Document (NoSQL) database                       |
+| MySQL             | `dc-up mysql`           | Relational database (MySQL flavour)             |
+| RabbitMQ          | `dc-up rabbitmq`        | Message queue. Management UI on port 15672      |
+| Elasticsearch     | `dc-up elastic`         | Full-text search engine                         |
+| Memcached         | `dc-up memcached`       | Simple in-memory cache                          |
+| MinIO             | `dc-up minio`           | S3-compatible object storage. Console on port 9001 |
+| Redpanda          | `dc-up redpanda`        | Kafka-compatible event streaming                |
+| Mailpit           | `dc-up mailpit`         | Local email catcher. Web UI on port 8025        |
+| Adminer           | `dc-up adminer`         | Web-based database GUI (port 8080)              |
+| Nginx             | `dc-up nginx`           | Web / reverse proxy server                      |
+| Caddy             | `dc-up caddy`           | HTTPS-capable web / reverse proxy server        |
+| Prometheus        | `dc-up prometheus`      | Metrics collection (port 9090)                  |
+| Grafana           | `dc-up grafana`         | Metrics dashboards. admin / admin (port 3030)   |
+| Jaeger            | `dc-up jaeger`          | Distributed tracing UI (port 16686)             |
+
+**Start multiple services at once:**
+
+```bash
+dc-up postgres redis mongo
 ```
 
 ---
 
-## Running Your Own docker-compose Inside the Container
+## Quick-Connect Shortcuts
 
-The Docker socket is mounted, so you can run `docker compose` for your own
-project stacks from the VS Code terminal:
+Once a service is running, these shortcuts drop you straight into its CLI:
 
-```bash
-# From /workspace (or any subdirectory with a docker-compose.yml)
-docker compose up -d
-
-# To join the shared webdev network, add this to your compose file:
-networks:
-  webdev:
-    external: true
-    name: webdev
-```
-
-Any container you spin up that joins `webdev` will immediately be reachable
-by hostname from the VS Code terminal and from other services.
+| Command       | What it does                                           |
+|---------------|--------------------------------------------------------|
+| `psql-dev`    | Opens the PostgreSQL shell connected to `devdb`        |
+| `redis-dev`   | Opens `redis-cli` connected to the Redis container     |
+| `mongo-dev`   | Opens `mongosh` connected to MongoDB `devdb`           |
+| `mysql-dev`   | Opens the MySQL shell connected to `devdb`             |
 
 ---
 
-## Installed Tools
+## Opening a Shell Inside a Service Container
 
-### Runtimes & Package Managers
-| Tool     | Purpose                        |
-|----------|--------------------------------|
-| Node.js  | Latest LTS (via NodeSource)    |
-| npm      | Latest                         |
-| pnpm     | Fast, disk-efficient installs  |
-| yarn     | Classic package manager        |
+Need to run commands directly inside a database container (for example, to run admin commands)?
 
-### Global npm Packages
-`typescript`, `ts-node`, `tsx`, `vite`, `esbuild`, `eslint`, `prettier`,
-`prisma`, `pm2`, `nodemon`, `vitest`, `jest`, `concurrently`, `cross-env`,
-`dotenv-cli`, `httpyac`
+```bash
+dexb postgres
+```
 
-### Network & HTTP Analysis
-| Tool        | Usage                                        |
+Replace `postgres` with any running service name. This opens a bash shell inside that container. Type `exit` to come back.
+
+---
+
+## Customizing Your Terminal
+
+You can add your own aliases, functions, and environment variables without touching any shared files and without restarting the container.
+
+1. Open the file `.bashrc.user` in your workspace root (VS Code's Explorer panel — it is a hidden file, so look for it there or open it from the terminal).
+2. Add your customizations. Example:
+
+   ```bash
+   # My personal shortcuts
+   alias serve='npx http-server . -p 8080'
+   alias cls='clear'
+   export MY_API_KEY="abc123"
+   ```
+
+3. Apply changes **without restarting** by running:
+
+   ```bash
+   reload-env
+   ```
+
+Your changes are now active in the current terminal.
+
+> **Note:** `.bashrc.user` is listed in `.gitignore` so your personal settings are never accidentally committed to the course repository.
+
+---
+
+## Plugins
+
+The environment has a plugin system that lets you add extra tools and shell commands. This is optional — you do not need plugins for normal coursework.
+
+**See what commands are available:**
+
+```bash
+plugin help
+```
+
+**See installed plugins:**
+
+```bash
+plugin list
+```
+
+**Install a plugin from a GitHub repository:**
+
+```bash
+plugin install https://github.com/example/my-plugin
+```
+
+**Create your own plugin (for developers):**
+
+```bash
+plugin new my-tool
+```
+
+This scaffolds a full plugin directory structure in `.plugins/my-tool/` with a starter script, shell integration file, and documentation template.
+
+---
+
+## All Shell Shortcuts
+
+Here is a quick reference for everything built in.
+
+### Docker / Services
+
+| Shortcut              | What it does                                          |
+|-----------------------|-------------------------------------------------------|
+| `dc-up <service>`     | Start a service (e.g. `dc-up postgres`)              |
+| `dc-down`             | Stop all services                                     |
+| `dc-logs <service>`   | Watch a service's log output                          |
+| `dps`                 | List running containers (formatted)                   |
+| `dexb <service>`      | Open a shell inside a running service container       |
+| `dlog <container>`    | Follow raw Docker logs                                |
+| `dprune`              | Free up disk space from stopped containers / images   |
+
+### Node / npm
+
+| Shortcut | Equivalent command |
+|----------|--------------------|
+| `ni`     | `npm install`      |
+| `nr`     | `npm run`          |
+| `ns`     | `npm start`        |
+| `nt`     | `npm test`         |
+| `nrd`    | `npm run dev`      |
+| `pni`    | `pnpm install`     |
+| `pnr`    | `pnpm run`         |
+
+### HTTP
+
+| Shortcut  | What it does                                                   |
+|-----------|----------------------------------------------------------------|
+| `jcurl`   | `curl` + pretty-print JSON output                              |
+| `GET`     | `curl -sS -X GET`                                              |
+| `POST`    | `curl -sS -X POST -H "Content-Type: application/json"`        |
+| `PUT`     | `curl -sS -X PUT -H "Content-Type: application/json"`         |
+| `DELETE`  | `curl -sS -X DELETE`                                           |
+| `wstest`  | Open a WebSocket connection (e.g. `wstest ws://localhost:3000`)|
+
+### System
+
+| Shortcut    | What it does                                 |
 |-------------|----------------------------------------------|
-| `curl`      | HTTP requests                                |
-| `xh`        | Friendlier curl alternative                  |
-| `httpie`    | `http GET http://api:3000/users`             |
-| `jq`        | JSON processing                              |
-| `websocat`  | WebSocket testing: `websocat ws://host:3000` |
-| `grpcurl`   | gRPC service testing                         |
-| `nmap`      | Port scanning                                |
-| `tcpdump`   | Packet capture                               |
-| `tshark`    | Wireshark CLI                                |
-| `netcat`    | Raw TCP/UDP: `nc -zv postgres 5432`          |
-| `mtr`       | traceroute + ping combined                   |
-| `socat`     | Socket relay / tunneling                     |
-| `dnsutils`  | `dig`, `nslookup`, `host`                    |
-| `iproute2`  | `ip addr`, `ip route`, `ss`                  |
+| `ports`     | Show all listening ports                     |
+| `listening` | Show listening sockets with process names    |
+| `ll`        | `ls -lAh` (detailed file list)               |
+| `reload-env`| Reload your `.bashrc.user` without restarting|
 
-### Database CLIs
-`psql`, `redis-cli`, `mongosh`, `mysql`, `sqlite3`
+### Git
 
-### Load & Performance Testing
-`k6` — `k6 run script.js`
-
-### Shell Utilities
-`ripgrep (rg)`, `fzf`, `bat`, `fd`, `tree`, `htop`, `lsof`, `strace`
+| Shortcut | Equivalent         |
+|----------|--------------------|
+| `gs`     | `git status`       |
+| `ga`     | `git add`          |
+| `gc`     | `git commit`       |
+| `gp`     | `git push`         |
+| `gl`     | `git log` (graph)  |
+| `gd`     | `git diff`         |
 
 ---
 
-## Shell Aliases Reference
+## Connecting to Services from Your Code
 
-```bash
-# Docker
-d          → docker
-dc         → docker compose -f .devcontainer/docker-compose.yml
-dps        → docker ps (formatted)
-dlog       → docker logs -f
-dex        → docker exec -it
-dc-up      → dc up -d
-dc-down    → dc down
-dc-logs    → dc logs -f
+When writing code that connects to a database or other service, use the **service name** as the hostname (not `localhost`).
 
-# Node
-ni / pni   → npm/pnpm install
-nr / pnr   → npm/pnpm run
-nrd        → npm run dev
+| Service       | Host to use in your code | Port  | Username | Password    | Database |
+|---------------|--------------------------|-------|----------|-------------|----------|
+| PostgreSQL    | `postgres`               | 5432  | `dev`    | `devpassword` | `devdb` |
+| MongoDB       | `mongo`                  | 27017 | `dev`    | `devpassword` | `devdb` |
+| Redis         | `redis`                  | 6379  | —        | —           | —        |
+| MySQL         | `mysql`                  | 3306  | `dev`    | `devpassword` | `devdb` |
+| RabbitMQ      | `rabbitmq`               | 5672  | `dev`    | `devpassword` | —        |
+| Elasticsearch | `elastic`                | 9200  | —        | —           | —        |
+| Memcached     | `memcached`              | 11211 | —        | —           | —        |
+| MinIO         | `minio`                  | 9000  | `minioadmin` | `minioadmin` | —    |
+| Redpanda      | `redpanda`               | 9092  | —        | —           | —        |
+| SMTP (Mailpit)| `mailpit`                | 1025  | —        | —           | —        |
 
-# Network
-ports      → ss -tulnp (all listening ports)
-listening  → lsof listening sockets
-jcurl      → curl + pipe to jq
-GET/POST/PUT/DELETE  → curl shortcuts with correct headers
-
-# DB shortcuts
-psql-dev   → psql -h postgres -U dev -d devdb
-redis-dev  → redis-cli -h redis
-mongo-dev  → mongosh mongodb://...@mongo:27017/devdb
+Example PostgreSQL connection string for Node.js:
+```
+postgresql://dev:devpassword@postgres:5432/devdb
 ```
 
----
-
-## Adding a Custom Service
-
-1. Add it to `.devcontainer/docker-compose.yml` under `services:`.
-2. Set `networks: webdev:` on the new service.
-3. Run `dc-up <yourservice>` from the terminal.
-
-The new container is immediately reachable by hostname inside VS Code.
+A `.env.example` file in the root of the project has ready-to-use connection strings for every service.
 
 ---
 
-## Ports Forwarded to Your Host
+## Ports You Can Access from Your Browser
 
-| Port  | Service                 |
-|-------|-------------------------|
-| 3000  | App default             |
-| 5173  | Vite dev server         |
-| 8080  | HTTP alt                |
-| 9090  | Prometheus              |
-| 3030  | Grafana                 |
-| 5432  | PostgreSQL              |
-| 6379  | Redis                   |
-| 27017 | MongoDB                 |
-| 3306  | MySQL                   |
-| 5672  | RabbitMQ AMQP           |
-| 15672 | RabbitMQ Management UI  |
-| 9200  | Elasticsearch           |
+Your browser on your laptop can reach these ports directly (VS Code forwards them automatically):
+
+| Port  | Service / What to open                             |
+|-------|----------------------------------------------------|
+| 3000  | Your app (default)                                 |
+| 5173  | Vite dev server                                    |
+| 8080  | HTTP alternate / Adminer database GUI              |
+| 8025  | Mailpit email catcher                              |
+| 9001  | MinIO console                                      |
+| 9090  | Prometheus                                         |
+| 3030  | Grafana dashboards (admin / admin)                 |
+| 16686 | Jaeger tracing UI                                  |
+| 15672 | RabbitMQ management (dev / devpassword)            |
+
+Open `http://localhost:<port>` in your browser.
 
 ---
 
 ## Troubleshooting
 
-**Docker socket permission denied:**
+### The "Reopen in Container" notification never appeared
+
+Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`), type **Dev Containers: Reopen in Container**, and press Enter. If that option doesn't appear, make sure the Dev Containers extension is installed and Docker Desktop is running.
+
+### The build failed or got stuck
+
+1. Make sure Docker Desktop is open and running (check the taskbar/menu bar icon).
+2. Open the Command Palette and choose **Dev Containers: Rebuild Container**.
+3. If it fails again, open Docker Desktop and check that you have at least 4 GB of memory allocated to Docker (Settings → Resources).
+
+### A service won't start
+
+Check Docker is running, then try:
+
 ```bash
-sudo chmod 666 /var/run/docker.sock
-# or rebuild the container (VS Code: Ctrl+Shift+P → Rebuild Container)
+dc-logs <service>
 ```
 
-**Service not reachable by hostname:**
+This shows the service's error output. Common fix: the service might need a moment to initialize. Try `dc-up <service>` again after 10 seconds.
+
+### `psql-dev` / `redis-dev` says "connection refused"
+
+The service is not running yet. Start it first:
+
 ```bash
-# Check it's on the webdev network
-docker network inspect webdev
-# Make sure the service is running
-dc ps
+dc-up postgres   # or redis, mongo, etc.
 ```
 
-**Rebuild the devcontainer after Dockerfile changes:**
-`Ctrl+Shift+P` → `Dev Containers: Rebuild Container`
+Wait a few seconds for it to become ready, then try again.
+
+### My app can't connect to the database
+
+Make sure you are using the **service name** as the host (e.g. `postgres`, `redis`, `mongo`) — **not** `localhost`. Inside the dev container, services talk to each other by name. See the connection table above.
+
+### I can't push to GitHub
+
+Run this inside the container terminal:
+
+```bash
+gh auth status
+```
+
+If it says you are not authenticated, run:
+
+```bash
+gh auth login
+```
+
+Follow the prompts. After authenticating, git push will work automatically.
+
+### I accidentally ran something and the terminal is frozen
+
+Press `Ctrl+C` to cancel the current command. If that doesn't work, close the terminal tab and open a new one from **Terminal → New Terminal**.
+
+### Everything is broken — I want to start fresh
+
+Open the Command Palette and choose **Dev Containers: Rebuild Container**. This rebuilds the environment from scratch. Your files in the workspace folder are never deleted.
+
+---
+
+## What's installed in the environment
+
+### Runtimes
+- **Node.js** (LTS) — `node`, `npm`, `npx`
+- **pnpm** and **yarn** — alternative package managers
+- **Python 3** — for scripting and tooling
+
+### TypeScript & Build Tools
+`typescript`, `ts-node`, `tsx`, `vite`, `esbuild`
+
+### Code Quality
+`eslint`, `prettier`
+
+### Database CLI Clients
+`psql` (PostgreSQL), `redis-cli`, `mongosh` (MongoDB), `mysql`, `sqlite3`
+
+### HTTP & Network Tools
+`curl`, `xh`, `httpie`, `jq`, `websocat`, `grpcurl`, `nmap`, `tcpdump`, `tshark`, `netcat`, `mtr`, `socat`, `dig`
+
+### Load Testing
+`k6` — run a load test script: `k6 run script.js`
+
+### Utilities
+`ripgrep` (`rg`), `fzf`, `bat`, `fd`, `tree`, `htop`, `lsof`, `git`, `gh` (GitHub CLI), `docker`, `docker compose`
+
+---
+
+*Questions or issues? Post in the course discussion board.*
