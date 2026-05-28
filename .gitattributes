@@ -8,3 +8,10 @@ Dockerfile  text eol=lf
 *.yml       text eol=lf
 *.yaml      text eol=lf
 Caddyfile   text eol=lf
+
+# Files excluded from `git archive` (GitHub "Download ZIP" + manual export)
+NOTES.md        export-ignore
+CLAUDE.md       export-ignore
+.gitignore      export-ignore
+.gitattributes  export-ignore
+.claude/        export-ignore
