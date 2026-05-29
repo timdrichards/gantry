@@ -61,7 +61,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       # Mount workspace source
-      - ..:/workspace:cached
+      - ..:/gantry:cached
       # Docker socket (Docker-outside-of-Docker).
       # Works on Mac, Linux, and Windows (Docker Desktop WSL2 backend)
       # because Docker Desktop exposes the daemon at this same Unix socket

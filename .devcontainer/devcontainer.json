@@ -5,7 +5,7 @@
   "name": "Gantry",
   "dockerComposeFile": "compose.yml",
   "service": "devcontainer",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/gantry",
 
   // ----------------------------------------------------------------
   // Features — Docker-in-Docker (full DinD)
@@ -347,8 +347,8 @@
   // ----------------------------------------------------------------
   // Lifecycle scripts
   // ----------------------------------------------------------------
-  "postCreateCommand": "bash /workspace/.devcontainer/scripts/post-create.sh",
-  "postStartCommand": "bash /workspace/.devcontainer/scripts/post-start.sh",
+  "postCreateCommand": "bash /gantry/.devcontainer/scripts/post-create.sh",
+  "postStartCommand": "bash /gantry/.devcontainer/scripts/post-start.sh",
 
   // ----------------------------------------------------------------
   // GitHub CLI auth — share host credentials into the container

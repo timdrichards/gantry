@@ -64,15 +64,15 @@ Used in volume bind mounts for service config files (e.g., `${LOCAL_WORKSPACE_FO
 
 ## Plugin System
 
-Plugins live in `/workspace/.plugins/` (bind-mounted, persists without rebuild, hidden from VS Code explorer).
+Plugins live in `/gantry/.plugins/` (bind-mounted, persists without rebuild, hidden from VS Code explorer).
 
 ### Key Locations
-- **Registry**: `/workspace/.plugins/.registry.json` — tracks installed plugins with URL, pin, and install timestamp
-- **Loader**: `/workspace/.plugins/.loader.sh` — auto-generated; sourced at every login; adds `bin/` to PATH, sources `lib/shell.sh`, exports `env` vars
+- **Registry**: `/gantry/.plugins/.registry.json` — tracks installed plugins with URL, pin, and install timestamp
+- **Loader**: `/gantry/.plugins/.loader.sh` — auto-generated; sourced at every login; adds `bin/` to PATH, sources `lib/shell.sh`, exports `env` vars
 - **Manager script**: `.devcontainer/scripts/plugin-manager.sh` — called fresh via `bash ...` on each invocation via the `plugin()` shell function
 
 ### Plugin Repo Structure
-Each plugin is a git repo cloned into `/workspace/.plugins/<name>/`:
+Each plugin is a git repo cloned into `/gantry/.plugins/<name>/`:
 ```
 plugin-name/
 ├── plugin.json      # Manifest: name, version, description, author, repository, dependencies, env
@@ -128,7 +128,7 @@ These invariants must be preserved when editing configuration:
 6. Additional CLIs: k6, mongosh (Ubuntu `noble` repo), grpcurl, websocat, xh
 7. Shell config (`shell/.bashrc_devcontainer` → `/etc/bash_devcontainer`)
 8. User setup (`vscode` added to docker group, passwordless sudo)
-9. `WORKDIR /workspace`, `USER vscode`
+9. `WORKDIR /gantry`, `USER vscode`
 
 ## gh CLI and git Authentication
 

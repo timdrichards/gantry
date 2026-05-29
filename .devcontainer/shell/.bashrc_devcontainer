@@ -21,7 +21,7 @@ shopt -s histappend
 
 # ---- Convenience aliases — Docker / Compose --------------------
 alias d='docker'
-alias dc='docker compose -f /workspace/.devcontainer/docker-compose.yml --project-name "$(basename "$(echo "${LOCAL_WORKSPACE_FOLDER}" | tr "\\\\" "/")")_devcontainer"'
+alias dc='docker compose -f /gantry/.devcontainer/docker-compose.yml --project-name "$(basename "$(echo "${LOCAL_WORKSPACE_FOLDER}" | tr "\\\\" "/")")_devcontainer"'
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
 alias dlog='docker logs -f'
 alias dex='docker exec -it'
@@ -117,7 +117,7 @@ alias gl='git log --oneline --graph --decorate -20'
 alias gd='git diff'
 
 # ---- Path additions --------------------------------------------
-export PATH="$PATH:/workspace/node_modules/.bin"
+export PATH="$PATH:/gantry/node_modules/.bin"
 export PATH="$HOME/.local/bin:$PATH"
 
 # ---- Node env defaults -----------------------------------------
@@ -125,40 +125,40 @@ export NODE_ENV=development
 export FORCE_COLOR=1
 
 # ---- User customization ----------------------------------------
-# Edit /workspace/.bashrc.user to add your own aliases, variables,
+# Edit /gantry/.bashrc.user to add your own aliases, variables,
 # and functions. Run `reload-env` to apply changes in the current
 # terminal without restarting the container.
-_USER_BASHRC=/workspace/.bashrc.user
+_USER_BASHRC=/gantry/.bashrc.user
 [[ -f "$_USER_BASHRC" ]] && source "$_USER_BASHRC"
 
 reload-env() {
-  if [[ -f /workspace/.bashrc.user ]]; then
-    source /workspace/.bashrc.user
-    echo "  Reloaded /workspace/.bashrc.user"
+  if [[ -f /gantry/.bashrc.user ]]; then
+    source /gantry/.bashrc.user
+    echo "  Reloaded /gantry/.bashrc.user"
   else
-    echo "  /workspace/.bashrc.user not found — nothing to reload."
+    echo "  /gantry/.bashrc.user not found — nothing to reload."
   fi
-  if [[ -f /workspace/.plugins/.loader.sh ]]; then
-    source /workspace/.plugins/.loader.sh
+  if [[ -f /gantry/.plugins/.loader.sh ]]; then
+    source /gantry/.plugins/.loader.sh
     echo "  Reloaded plugin loader"
   fi
 }
 
 # ---- Plugin manager --------------------------------------------
 plugin() {
-  bash /workspace/.devcontainer/scripts/plugin-manager.sh "$@"
+  bash /gantry/.devcontainer/scripts/plugin-manager.sh "$@"
   local rc=$?
   if [[ $rc -eq 0 && ( "$1" == "install" || "$1" == "remove" || "$1" == "update" || "$1" == "new" ) ]]; then
-    [[ -f /workspace/.plugins/.loader.sh ]] && source /workspace/.plugins/.loader.sh
+    [[ -f /gantry/.plugins/.loader.sh ]] && source /gantry/.plugins/.loader.sh
   fi
   return $rc
 }
 
 # Load installed plugins
-[[ -f /workspace/.plugins/.loader.sh ]] && source /workspace/.plugins/.loader.sh
+[[ -f /gantry/.plugins/.loader.sh ]] && source /gantry/.plugins/.loader.sh
 
 # ---- Welcome banner --------------------------------------------
-_PLUGIN_COUNT=$(find /workspace/.plugins -maxdepth 1 -mindepth 1 -type d ! -name '.*' 2>/dev/null | wc -l | tr -d ' ')
+_PLUGIN_COUNT=$(find /gantry/.plugins -maxdepth 1 -mindepth 1 -type d ! -name '.*' 2>/dev/null | wc -l | tr -d ' ')
 echo ""
 echo "  ╔══════════════════════════════════════════════════╗"
 echo "  ║                      Gantry                      ║"

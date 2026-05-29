@@ -74,7 +74,7 @@ You should see something like this:
   ...
   ╚══════════════════════════════════════════════════╝
 
-vscode@devcontainer:/workspace$
+vscode@devcontainer:/gantry$
 ```
 
 That banner confirms everything is working. The `$` at the end of the last line is the **prompt** — it is waiting for you to type a command.

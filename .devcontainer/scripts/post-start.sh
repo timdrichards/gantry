@@ -42,10 +42,10 @@ else
 fi
 
 # ---- Auto-update plugins (background) --------------------------
-if [[ -f /workspace/.plugins/.registry.json ]]; then
-  plugin_count=$(jq '.plugins | length' /workspace/.plugins/.registry.json 2>/dev/null || echo 0)
+if [[ -f /gantry/.plugins/.registry.json ]]; then
+  plugin_count=$(jq '.plugins | length' /gantry/.plugins/.registry.json 2>/dev/null || echo 0)
   if [[ "$plugin_count" -gt 0 ]]; then
     echo "🔌 Auto-updating ${plugin_count} plugin(s) in background..."
-    bash /workspace/.devcontainer/scripts/plugin-manager.sh update --all --quiet &
+    bash /gantry/.devcontainer/scripts/plugin-manager.sh update --all --quiet &
   fi
 fi

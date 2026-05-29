@@ -207,5 +207,5 @@ RUN groupadd -f docker \
 # ------------------------------------------------------------
 # 9. Working directory
 # ------------------------------------------------------------
-WORKDIR /workspace
+WORKDIR /gantry
 USER ${USERNAME}

@@ -3,13 +3,13 @@
 # plugin-manager.sh — Dev Container Plugin Manager
 #
 # Called via the plugin() shell function in .bashrc_devcontainer:
-#   plugin() { bash /workspace/.devcontainer/scripts/plugin-manager.sh "$@"; ... }
+#   plugin() { bash /gantry/.devcontainer/scripts/plugin-manager.sh "$@"; ... }
 #
 # Never sourced — always run as a subprocess.
 # ================================================================
 set -euo pipefail
 
-readonly PLUGINS_DIR="/workspace/.plugins"
+readonly PLUGINS_DIR="/gantry/.plugins"
 readonly REGISTRY_FILE="${PLUGINS_DIR}/.registry.json"
 readonly LOADER_FILE="${PLUGINS_DIR}/.loader.sh"
 readonly MANAGER_VERSION="1"

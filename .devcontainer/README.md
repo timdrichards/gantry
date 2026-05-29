@@ -91,7 +91,7 @@ VS Code opens the `devcontainer` service as its workspace. This container is bui
 - Database CLI clients: `psql`, `redis-cli`, `mongosh`, `mysql`
 - Shell tooling: `ripgrep`, `fzf`, `bat`, `fd`, `htop`
 
-The workspace source (the parent directory `..`) is bind-mounted to `/workspace` inside the container.
+The workspace source (the parent directory `..`) is bind-mounted to `/gantry` inside the container.
 
 ### Sidecar services
 
@@ -143,7 +143,7 @@ The VS Code specification file. Key fields:
 |---|---|---|
 | `dockerComposeFile` | `compose.yml` | Compose file to use |
 | `service` | `devcontainer` | Which service VS Code attaches to |
-| `workspaceFolder` | `/workspace` | Path inside the container |
+| `workspaceFolder` | `/gantry` | Path inside the container |
 | `postCreateCommand` | `scripts/post-create.sh` | Runs once after build |
 | `postStartCommand` | `scripts/post-start.sh` | Runs on every start |
 | `remoteUser` | `vscode` | Non-root user inside the container |
@@ -220,7 +220,7 @@ Sourced by every bash session inside the devcontainer (via `/etc/bash.bashrc`). 
 
 Runs **once** after the container image is first built. It:
 
-1. Marks `/workspace` as a safe git directory
+1. Marks `/gantry` as a safe git directory
 2. Creates and chowns the `/commandhistory` directory for persistent bash history
 3. Runs `npm install` if a `package.json` exists in the workspace root
 4. Runs `npx prisma generate` if a Prisma schema exists
@@ -273,7 +273,7 @@ Defined in `shell/.bashrc_devcontainer`.
 | Alias / Function | Expands to |
 |---|---|
 | `d` | `docker` |
-| `dc` | `docker compose -f /workspace/.devcontainer/compose.yml --project-name <project>_devcontainer` |
+| `dc` | `docker compose -f /gantry/.devcontainer/compose.yml --project-name <project>_devcontainer` |
 | `dps` | `docker ps` with a readable table format |
 | `dlog <name>` | `docker logs -f <name>` |
 | `dex <name> <cmd>` | `docker exec -it <name> <cmd>` |

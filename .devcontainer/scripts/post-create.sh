@@ -7,7 +7,7 @@ set -euo pipefail
 echo "🔧 Running post-create setup..."
 
 # ---- Configure git (safe directory for mounted workspace) ------
-git config --global --add safe.directory /workspace
+git config --global --add safe.directory /gantry
 
 # ---- Bash history file -----------------------------------------
 sudo mkdir -p /commandhistory
@@ -15,15 +15,15 @@ sudo touch /commandhistory/.bash_history
 sudo chown -R "${USER}:${USER}" /commandhistory
 
 # ---- Install workspace npm deps if package.json exists ---------
-if [[ -f /workspace/package.json ]]; then
+if [[ -f /gantry/package.json ]]; then
   echo "📦 Installing npm dependencies..."
-  cd /workspace && npm install
+  cd /gantry && npm install
 fi
 
 # ---- Prisma generate if schema exists --------------------------
-if [[ -f /workspace/prisma/schema.prisma ]]; then
+if [[ -f /gantry/prisma/schema.prisma ]]; then
   echo "🗄️  Generating Prisma client..."
-  cd /workspace && npx prisma generate
+  cd /gantry && npx prisma generate
 fi
 
 # ---- Configure gh as Git credential helper (HTTPS remotes) ----
@@ -33,10 +33,10 @@ if command -v gh &>/dev/null; then
 fi
 
 # ---- Create user bashrc if it doesn't exist --------------------
-if [[ ! -f /workspace/.bashrc.user ]]; then
-  cat > /workspace/.bashrc.user << 'BASHRC'
+if [[ ! -f /gantry/.bashrc.user ]]; then
+  cat > /gantry/.bashrc.user << 'BASHRC'
 # ================================================================
-# User Shell Customization — /workspace/.bashrc.user
+# User Shell Customization — /gantry/.bashrc.user
 # ================================================================
 # Add your own aliases, environment variables, and functions here.
 #
@@ -54,16 +54,16 @@ BASHRC
 fi
 
 # ---- Initialize plugin directory and registry ------------------
-if [[ ! -d /workspace/.plugins ]]; then
-  mkdir -p /workspace/.plugins
-  echo '{"plugins":{}}' > /workspace/.plugins/.registry.json
-  echo "🔌 Plugin directory created at /workspace/.plugins"
+if [[ ! -d /gantry/.plugins ]]; then
+  mkdir -p /gantry/.plugins
+  echo '{"plugins":{}}' > /gantry/.plugins/.registry.json
+  echo "🔌 Plugin directory created at /gantry/.plugins"
 fi
-if [[ ! -f /workspace/.plugins/.registry.json ]]; then
-  echo '{"plugins":{}}' > /workspace/.plugins/.registry.json
+if [[ ! -f /gantry/.plugins/.registry.json ]]; then
+  echo '{"plugins":{}}' > /gantry/.plugins/.registry.json
 fi
-if [[ ! -f /workspace/.plugins/plugins-README.md ]]; then
-  cat > /workspace/.plugins/plugins-README.md << 'EOF'
+if [[ ! -f /gantry/.plugins/plugins-README.md ]]; then
+  cat > /gantry/.plugins/plugins-README.md << 'EOF'
 # Dev Container Plugins
 
 Plugins extend the dev container with custom commands, scripts, and tools.
