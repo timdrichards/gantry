@@ -288,6 +288,15 @@ cmd_install() {
   mv "$tmp_dir" "$target_dir"
   trap - EXIT
 
+  # Run postInstall hook if the manifest defines one
+  local post_install
+  post_install=$(jq -r '.postInstall // empty' "${target_dir}/plugin.json")
+  if [[ -n "$post_install" ]]; then
+    info "Running post-install: ${post_install}"
+    (cd "$target_dir" && eval "$post_install") \
+      || die "Post-install failed. Plugin is at ${target_dir} — fix the issue and re-install."
+  fi
+
   # Register
   local installed_at
   installed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -635,12 +644,54 @@ cmd_new() {
     > "${plugin_dir}/plugin.json"
 
   # bin/<name> — main executable
-  cat > "${plugin_dir}/bin/${name}" << BINEOF
+  cat > "${plugin_dir}/bin/${name}" << 'BINEOF_SENTINEL'
 #!/usr/bin/env bash
-# ${name} — main command
-# TODO: add your implementation here
-echo "Hello from the ${name} plugin!"
-BINEOF
+# PLUGIN_NAME — describe your plugin here
+
+set -euo pipefail
+
+die()  { echo "error: $*" >&2; exit 1; }
+info() { echo "  → $*"; }
+warn() { echo "  ⚠  $*" >&2; }
+
+cmd_example() {
+  # TODO: replace this with your first real command
+  info "Running example..."
+}
+
+cmd_help() {
+  cat << 'HELPEOF'
+
+  PLUGIN_NAME — describe your plugin here
+
+  SUBCOMMANDS
+
+    example
+        A placeholder subcommand. Replace it with your first real command.
+
+    help
+        Show this help text.
+
+  EXAMPLES
+
+    PLUGIN_NAME example
+
+HELPEOF
+}
+
+main() {
+  local cmd="${1:-help}"
+  shift || true
+  case "$cmd" in
+    example)         cmd_example "$@" ;;
+    help|--help|-h)  cmd_help ;;
+    *) die "Unknown command '${cmd}'. Run 'PLUGIN_NAME help' for usage." ;;
+  esac
+}
+
+main "$@"
+BINEOF_SENTINEL
+  sed -i "s/PLUGIN_NAME/${name}/g" "${plugin_dir}/bin/${name}"
   chmod +x "${plugin_dir}/bin/${name}"
 
   # lib/shell.sh — sourced at login (use single-quote delimiter to avoid expansion)
@@ -901,10 +952,14 @@ cmd_help() {
 
   PLUGIN STRUCTURE
     Each plugin is a git repo with:
-      plugin.json       manifest (name, version, description, dependencies, env)
+      plugin.json       manifest (name, version, description, dependencies, env,
+                        and optional postInstall hook)
       bin/              executables added to PATH
       lib/shell.sh      aliases/functions sourced at login
       docs/README.md    documentation
+
+    postInstall runs once after 'plugin install', from the plugin directory.
+    Use it for setup steps like 'npm install --prefix . --silent'.
 
   SECURITY
     • Only install plugins from trusted HTTPS sources.
