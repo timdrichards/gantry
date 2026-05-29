@@ -287,6 +287,9 @@
         "shellcheck.enable": true,
         "shellcheck.run": "onType",
 
+        // SonarLint — point at the JRE installed in the Dockerfile
+        "sonarlint.ls.javaHome": "/usr/lib/jvm/default-java",
+
         // Spell checker
         "cSpell.words": [
           "devcontainer", "pnpm", "htmx", "prisma", "esbuild",
