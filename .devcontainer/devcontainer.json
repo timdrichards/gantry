@@ -1,9 +1,9 @@
 {
   // ================================================================
-  // VS Code Dev Container — Web Programming & Scalable Web Systems
+  // VS Code Dev Container — Gantry
   // ================================================================
-  "name": "Web Dev + Scalable Systems",
-  "dockerComposeFile": "docker-compose.yml",
+  "name": "Gantry",
+  "dockerComposeFile": "compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
 

@@ -161,7 +161,7 @@ plugin() {
 _PLUGIN_COUNT=$(find /workspace/.plugins -maxdepth 1 -mindepth 1 -type d ! -name '.*' 2>/dev/null | wc -l | tr -d ' ')
 echo ""
 echo "  ╔══════════════════════════════════════════════════╗"
-echo "  ║  Web Dev + Scalable Systems  •  Dev Container    ║"
+echo "  ║                      Gantry                      ║"
 echo "  ╠══════════════════════════════════════════════════╣"
 printf "  ║  Node %-10s  npm %-10s  pnpm %-9s ║\n" \
   "$(node -v 2>/dev/null)" \
@@ -170,7 +170,7 @@ printf "  ║  Node %-10s  npm %-10s  pnpm %-9s ║\n" \
 printf "  ║  Docker %-36s     ║\n" "$(docker --version 2>/dev/null | cut -d' ' -f3 | tr -d ',')"
 printf "  ║  Plugins: %-39s  ║\n" "${_PLUGIN_COUNT} active  •  'plugin help'"
 echo "  ╠══════════════════════════════════════════════════╣"
-echo "  ║  Network: webdev (172.28.0.0/16)                 ║"
+echo "  ║  Network: gantry (172.28.0.0/16)                 ║"
 echo "  ║  Type 'dc-up <service>' to start services        ║"
 echo "  ║  Services: postgres | mongo | redis | mysql      ║"
 echo "  ║            rabbitmq | elasticsearch | memcached  ║"

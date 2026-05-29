@@ -1,5 +1,5 @@
 # ============================================================
-# Dev Container — Web Programming & Scalable Web Systems
+# Gantry Dev Container
 # Node.js LTS | Docker-in-Docker | Full Network Tooling
 # ============================================================
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04

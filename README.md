@@ -1,4 +1,4 @@
-# Course Dev Environment — Getting Started
+# Gantry Dev Environment — Getting Started
 
 Welcome! This guide will get your development environment up and running, even if you have never used Docker or a dev container before. Read through each section in order the first time — it only takes about 10 minutes.
 
@@ -11,9 +11,9 @@ When you open this project in VS Code, it automatically builds a **Linux environ
 - **Node.js** (latest LTS) and all the tools you need for web development
 - **Optional databases** (PostgreSQL, Redis, MongoDB, MySQL, and more) that you can turn on with a single command
 - A **pre-configured terminal** with shortcuts that make common tasks faster
-- Everything needed for the course — no manual installation required
+- Everything needed for web development — no manual installation required
 
-No matter whether you are on macOS, Windows, or Linux, everyone in the class gets the exact same environment. "It works on my machine" stops being an excuse.
+No matter whether you are on macOS, Windows, or Linux, everyone on the team gets the exact same environment. "It works on my machine" stops being an excuse.
 
 ---
 
@@ -22,11 +22,11 @@ No matter whether you are on macOS, Windows, or Linux, everyone in the class get
 You need three things installed on your computer before you start. Click each link and follow the instructions for your operating system.
 
 1. **[Docker Desktop](https://www.docker.com/products/docker-desktop/)**
-   Docker is the engine that runs the course environment. The Desktop app gives you a graphical dashboard too.
+   Docker is the engine that runs the dev environment. The Desktop app gives you a graphical dashboard too.
    > **Windows users:** during installation, choose **"Use WSL 2"** if asked. After installing, open Docker Desktop once and let it finish starting up before moving on.
 
 2. **[Visual Studio Code](https://code.visualstudio.com/)**
-   The code editor for the course.
+   The code editor.
 
 3. **[Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)**
    This VS Code extension makes the "open in container" magic work. Click the link, then click **Install**, and VS Code will open and install it automatically.
@@ -38,7 +38,7 @@ Once all three are installed, make sure Docker Desktop is **running** (look for 
 ## Step 2 — Open the project in VS Code
 
 1. Open VS Code.
-2. Go to **File → Open Folder** and select the folder you cloned or downloaded for this course.
+2. Go to **File → Open Folder** and select the project folder.
 3. VS Code will show a notification in the bottom-right corner:
 
    > **"Folder contains a Dev Container configuration file. Reopen in Container?"**
@@ -49,7 +49,7 @@ Once all three are installed, make sure Docker Desktop is **running** (look for 
 
 5. **Wait for the build to finish.** The first time takes **3–5 minutes** while it downloads everything. You will see a progress bar in the bottom-right corner. Subsequent openings are almost instant.
 
-When the build finishes, VS Code reloads and you are now inside the course environment.
+When the build finishes, VS Code reloads and you are now inside the development environment.
 
 ---
 
@@ -69,7 +69,7 @@ You should see something like this:
   ║  Docker 27.x.x                                   ║
   ║  Plugins: 0 active  •  'plugin help'             ║
   ╠══════════════════════════════════════════════════╣
-  ║  Network: webdev (172.28.0.0/16)                 ║
+  ║  Network: gantry (172.28.0.0/16)                 ║
   ║  Type 'dc-up <service>' to start services        ║
   ...
   ╚══════════════════════════════════════════════════╝
@@ -320,13 +320,13 @@ You can add your own aliases, functions, and environment variables without touch
 
 Your changes are now active in the current terminal.
 
-> **Note:** `.bashrc.user` is listed in `.gitignore` so your personal settings are never accidentally committed to the course repository.
+> **Note:** `.bashrc.user` is listed in `.gitignore` so your personal settings are never accidentally committed to the project repository.
 
 ---
 
 ## Plugins
 
-The environment has a plugin system that lets you add extra tools and shell commands. This is optional — you do not need plugins for normal coursework.
+The environment has a plugin system that lets you add extra tools and shell commands.
 
 **See what commands are available:**
 
@@ -552,4 +552,4 @@ Open the Command Palette and choose **Dev Containers: Rebuild Container**. This 
 
 ---
 
-*Questions or issues? Post in the course discussion board.*
+*Questions or issues? Open an issue in the repository.*

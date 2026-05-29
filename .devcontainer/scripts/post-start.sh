@@ -15,8 +15,8 @@ else
   echo "⚠️  Docker socket not yet available — DinD may still be initialising."
 fi
 
-echo "🌐 Network 'webdev' containers:"
-docker network inspect webdev \
+echo "🌐 Network 'gantry' containers:"
+docker network inspect gantry \
   --format '{{range .Containers}}     • {{.Name}} ({{.IPv4Address}}){{"\n"}}{{end}}' \
   2>/dev/null || echo "   (none yet — start services with dc-up <service>)"
 

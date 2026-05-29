@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repository Is
 
-A VS Code dev container configuration template for a web programming / scalable web systems course. There is no application code — the entire repo is infrastructure configuration. There are no build, test, or lint commands to run on the repo itself.
+A VS Code dev container configuration template for web development projects. There is no application code — the entire repo is infrastructure configuration. There are no build, test, or lint commands to run on the repo itself.
 
 ## Repository Layout
 
 ```
 .devcontainer/
 ├── devcontainer.json          # VS Code spec: mounts, extensions, settings, lifecycle hooks
-├── docker-compose.yml         # Primary container + all optional sidecar services
+├── compose.yml         # Primary container + all optional sidecar services
 ├── Dockerfile                 # Image build for the devcontainer service
 ├── shell/.bashrc_devcontainer # Aliases/functions sourced in every container bash session
 ├── scripts/post-create.sh     # Runs once after image build
@@ -34,7 +34,7 @@ A VS Code dev container configuration template for a web programming / scalable 
 |---|---|
 | `Dockerfile` | Full rebuild (Cmd+Shift+P → "Rebuild Container") |
 | `devcontainer.json` (mounts, features, remoteEnv) | Full rebuild |
-| `docker-compose.yml` | Rebuild or `dc-down && dc-up <service>` for sidecars |
+| `compose.yml` | Rebuild or `dc-down && dc-up <service>` for sidecars |
 | `shell/.bashrc_devcontainer` | `source /etc/bash_devcontainer` — no rebuild |
 | `scripts/post-create.sh` | Rebuild (runs once, at build time) |
 | `scripts/post-start.sh` | Container restart — no rebuild |
@@ -44,7 +44,7 @@ A VS Code dev container configuration template for a web programming / scalable 
 ## Architecture
 
 ### Network
-All containers share the `webdev` bridge network (`172.28.0.0/16`). Every service is reachable from every other service by its hostname (e.g., `postgres:5432`, `redis:6379`, `redpanda:9092`). Connection strings in `.env.example` use these hostnames, not `localhost`.
+All containers share the `gantry` bridge network (`172.28.0.0/16`). Every service is reachable from every other service by its hostname (e.g., `postgres:5432`, `redis:6379`, `redpanda:9092`). Connection strings in `.env.example` use these hostnames, not `localhost`.
 
 ### Service Profiles
 Sidecar services are gated by Compose profiles and never start automatically. Start them with the `dc-up` alias from inside the container:
@@ -54,12 +54,12 @@ dc-up redis postgres     # start specific services
 dc-up --profile full     # start everything (excludes caddy — conflicts with nginx on 80/443)
 ```
 
-Profile names match service names: `postgres`, `mongo`, `redis`, `mysql`, `rabbitmq`, `elastic`, `memcached`, `mailpit`, `minio`, `redpanda`, `observability`, `nginx`, `caddy`, `adminer`.
+Profile names match service names: `postgres`, `mongo`, `redis`, `mysql`, `rabbitmq`, `elastic`, `memcached`, `mailpit`, `minio`, `redpanda`, `observability`, `nginx`, `caddy`, `adminer`, `vector`, `meilisearch`, `nats`, `keycloak`.
 
 ### Docker-outside-of-Docker
 The host Docker socket (`/var/run/docker.sock`) is bind-mounted into the devcontainer. All `docker` and `docker compose` commands inside the container talk to the host daemon. Sidecar containers are therefore siblings of the devcontainer, not children. This is why `dc exec <service>` can fail if the sidecar was started under a different compose project name — `dexb` works around this by using the `com.docker.compose.service` label instead.
 
-### `${LOCAL_WORKSPACE_FOLDER}` in docker-compose.yml
+### `${LOCAL_WORKSPACE_FOLDER}` in compose.yml
 Used in volume bind mounts for service config files (e.g., `${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/postgres/init`). VS Code passes this as a host environment variable when invoking docker compose. On Windows, Docker Desktop handles path translation automatically.
 
 ## Plugin System

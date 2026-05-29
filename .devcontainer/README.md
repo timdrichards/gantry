@@ -11,11 +11,11 @@ This document describes how the dev container is structured, how its pieces fit 
 3. [Architecture](#architecture)
    - [The devcontainer service](#the-devcontainer-service)
    - [Sidecar services](#sidecar-services)
-   - [The webdev network](#the-webdev-network)
+   - [The gantry network](#the-gantry-network)
    - [Docker socket passthrough](#docker-socket-passthrough)
 4. [Configuration Files](#configuration-files)
    - [devcontainer.json](#devcontainerjson)
-   - [docker-compose.yml](#docker-composeyml)
+   - [compose.yml](#docker-composeyml)
    - [Dockerfile](#dockerfile)
    - [shell/.bashrc_devcontainer](#shellbashrc_devcontainer)
 5. [Lifecycle Scripts](#lifecycle-scripts)
@@ -37,9 +37,9 @@ This document describes how the dev container is structured, how its pieces fit 
 
 ## Overview
 
-This dev container provides a fully self-contained web development environment for the course. A single `docker-compose.yml` defines the primary coding container (the VS Code workspace) alongside a suite of optional sidecar services — databases, message queues, a reverse proxy, and observability tooling.
+This dev container provides a fully self-contained web development environment. A single `compose.yml` defines the primary coding container (the VS Code workspace) alongside a suite of optional sidecar services — databases, message queues, a reverse proxy, and observability tooling.
 
-Everything runs inside a shared Docker bridge network (`webdev`) so every container is reachable from every other container by its service name as a hostname (e.g. `postgres`, `redis`, `mongo`).
+Everything runs inside a shared Docker bridge network (`gantry`) so every container is reachable from every other container by its service name as a hostname (e.g. `postgres`, `redis`, `mongo`).
 
 ---
 
@@ -48,7 +48,7 @@ Everything runs inside a shared Docker bridge network (`webdev`) so every contai
 ```
 .devcontainer/
 ├── devcontainer.json          # VS Code dev container specification
-├── docker-compose.yml         # All services (devcontainer + sidecars)
+├── compose.yml         # All services (devcontainer + sidecars)
 ├── Dockerfile                 # Image build for the devcontainer service
 ├── README.md                  # This file
 │
@@ -98,14 +98,14 @@ The workspace source (the parent directory `..`) is bind-mounted to `/workspace`
 All other services (postgres, redis, mongo, etc.) are standard upstream images. They are not built — Docker pulls them directly. They are **optional** and activated through Compose profiles. No sidecar is started unless explicitly requested.
 
 Each sidecar:
-- Joins the `webdev` network with one or more hostname aliases
+- Joins the `gantry` network with one or more hostname aliases
 - Uses a named volume for persistent data
 - Exposes its standard port to the host machine
 - Has a `restart: unless-stopped` policy
 
-### The webdev network
+### The gantry network
 
-All services share the `webdev` bridge network (`172.28.0.0/16`). Containers resolve each other by service name:
+All services share the `gantry` bridge network (`172.28.0.0/16`). Containers resolve each other by service name:
 
 ```
 devcontainer → postgres:5432   (also aliased as "db")
@@ -141,17 +141,17 @@ The VS Code specification file. Key fields:
 
 | Field | Value | Purpose |
 |---|---|---|
-| `dockerComposeFile` | `docker-compose.yml` | Compose file to use |
+| `dockerComposeFile` | `compose.yml` | Compose file to use |
 | `service` | `devcontainer` | Which service VS Code attaches to |
 | `workspaceFolder` | `/workspace` | Path inside the container |
 | `postCreateCommand` | `scripts/post-create.sh` | Runs once after build |
 | `postStartCommand` | `scripts/post-start.sh` | Runs on every start |
 | `remoteUser` | `vscode` | Non-root user inside the container |
-| `containerEnv` | `LOCAL_WORKSPACE_FOLDER` | Passes the host workspace path in; used by `docker-compose.yml` to resolve volume mounts |
+| `containerEnv` | `LOCAL_WORKSPACE_FOLDER` | Passes the host workspace path in; used by `compose.yml` to resolve volume mounts |
 
 The `features` block enables the Docker-outside-of-Docker feature, which installs the Docker CLI and adds the `vscode` user to the `docker` group.
 
-### docker-compose.yml
+### compose.yml
 
 Defines all services. Services are grouped by Compose **profile**:
 
@@ -231,7 +231,7 @@ Runs **every time** the container starts (including after a VS Code window reloa
 
 1. Verifies the Docker socket is accessible
 2. Prints all currently running containers
-3. Prints all containers on the `webdev` network with their IP addresses
+3. Prints all containers on the `gantry` network with their IP addresses
 4. Checks `gh auth status` and prints the authenticated user, or a platform-specific warning if not authenticated
 
 ---
@@ -273,7 +273,7 @@ Defined in `shell/.bashrc_devcontainer`.
 | Alias / Function | Expands to |
 |---|---|
 | `d` | `docker` |
-| `dc` | `docker compose -f /workspace/.devcontainer/docker-compose.yml --project-name <project>_devcontainer` |
+| `dc` | `docker compose -f /workspace/.devcontainer/compose.yml --project-name <project>_devcontainer` |
 | `dps` | `docker ps` with a readable table format |
 | `dlog <name>` | `docker logs -f <name>` |
 | `dex <name> <cmd>` | `docker exec -it <name> <cmd>` |
@@ -501,13 +501,13 @@ ls -la ~/.ssh
 
 ## Extending the Dev Container
 
-After any structural change (Dockerfile, docker-compose.yml, devcontainer.json) you must rebuild the container: **Cmd/Ctrl+Shift+P → "Dev Containers: Rebuild Container"**.
+After any structural change (Dockerfile, compose.yml, devcontainer.json) you must rebuild the container: **Cmd/Ctrl+Shift+P → "Dev Containers: Rebuild Container"**.
 
 Changes to `shell/.bashrc_devcontainer` or the lifecycle scripts take effect on the next container start without a full rebuild — or immediately with `source /etc/bash_devcontainer` in an open terminal.
 
 ### Adding a new sidecar service
 
-1. Add the service block to `docker-compose.yml`. Give it a profile name, a named volume (if it needs persistence), and network aliases.
+1. Add the service block to `compose.yml`. Give it a profile name, a named volume (if it needs persistence), and network aliases.
 2. Add the named volume under the top-level `volumes:` key.
 3. Add the connection URL to `.env.example` (and your local `.env`).
 4. Add the host port to `forwardPorts` in `devcontainer.json` if you want VS Code to forward it.
@@ -517,7 +517,7 @@ Changes to `shell/.bashrc_devcontainer` or the lifecycle scripts take effect on 
 Example — adding a hypothetical ClickHouse service:
 
 ```yaml
-# docker-compose.yml
+# compose.yml
   clickhouse:
     image: clickhouse/clickhouse-server:latest
     profiles: [ clickhouse, full ]
@@ -526,7 +526,7 @@ Example — adding a hypothetical ClickHouse service:
       - "8123:8123"
       - "9000:9000"
     networks:
-      webdev:
+      gantry:
         aliases:
           - clickhouse
 ```
@@ -581,7 +581,7 @@ dc-up postgres
 
 ### Customising Prometheus scraping
 
-Edit `services/prometheus/prometheus.yml`. Add a new `scrape_configs` entry pointing at your app's `/metrics` endpoint. The `devcontainer` hostname resolves inside the `webdev` network:
+Edit `services/prometheus/prometheus.yml`. Add a new `scrape_configs` entry pointing at your app's `/metrics` endpoint. The `devcontainer` hostname resolves inside the `gantry` network:
 
 ```yaml
 - job_name: "node-app"

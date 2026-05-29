@@ -3,13 +3,13 @@
 #
 # The `devcontainer` service is the main VS Code container.
 # All other services (postgres, redis, mongo, etc.) share the
-# same `webdev` network so they are reachable by hostname from
+# same `gantry` network so they are reachable by hostname from
 # inside VS Code's terminal.
 #
 # Usage:
 #   • VS Code opens the `devcontainer` service automatically.
 #   • Start optional services:
-#       docker compose -f .devcontainer/docker-compose.yml \
+#       docker compose -f .devcontainer/compose.yml \
 #                      --profile postgres up -d
 #   • Or from inside the devcontainer:
 #       dc up -d postgres redis   (dc alias is set in bashrc)
@@ -19,8 +19,8 @@
 # Shared network — every container resolves others by service name
 # ----------------------------------------------------------------
 networks:
-  webdev:
-    name: webdev
+  gantry:
+    name: gantry
     driver: bridge
     ipam:
       config:
@@ -40,6 +40,11 @@ volumes:
   redpanda-data:
   caddy-data:
   caddy-config:
+  loki-data:
+  qdrant-data:
+  meilisearch-data:
+  keycloak-data:
+  nats-data:
   devcontainer-bashhistory:
 
     # ----------------------------------------------------------------
@@ -68,7 +73,7 @@ services:
       DOCKER_HOST: unix:///var/run/docker.sock
       HISTFILE: /commandhistory/.bash_history
     networks:
-      webdev:
+      gantry:
         aliases:
           - devcontainer
     # Keep container running
@@ -98,7 +103,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      webdev:
+      gantry:
         aliases:
           - postgres
           - db
@@ -121,7 +126,7 @@ services:
     ports:
       - "27017:27017"
     networks:
-      webdev:
+      gantry:
         aliases:
           - mongo
           - mongodb
@@ -145,7 +150,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      webdev:
+      gantry:
         aliases:
           - redis
           - cache
@@ -173,7 +178,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      webdev:
+      gantry:
         aliases:
           - mysql
 
@@ -195,7 +200,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      webdev:
+      gantry:
         aliases:
           - rabbitmq
           - mq
@@ -226,7 +231,7 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      webdev:
+      gantry:
         aliases:
           - elasticsearch
           - elastic
@@ -242,7 +247,7 @@ services:
     ports:
       - "11211:11211"
     networks:
-      webdev:
+      gantry:
         aliases:
           - memcached
 
@@ -258,7 +263,7 @@ services:
       - "1025:1025"
       - "8025:8025"
     networks:
-      webdev:
+      gantry:
         aliases:
           - mailpit
           - smtp
@@ -282,7 +287,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     networks:
-      webdev:
+      gantry:
         aliases:
           - minio
           - s3
@@ -325,7 +330,7 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      webdev:
+      gantry:
         aliases:
           - redpanda
           - kafka
@@ -344,7 +349,7 @@ services:
     ports:
       - "9080:8080"
     networks:
-      webdev:
+      gantry:
         aliases:
           - redpanda-console
 
@@ -361,7 +366,7 @@ services:
     ports:
       - "9090:9090"
     networks:
-      webdev:
+      gantry:
         aliases:
           - prometheus
 
@@ -379,7 +384,7 @@ services:
     ports:
       - "3030:3030"
     networks:
-      webdev:
+      gantry:
         aliases:
           - grafana
 
@@ -399,7 +404,7 @@ services:
       - "4317:4317"
       - "4318:4318"
     networks:
-      webdev:
+      gantry:
         aliases:
           - jaeger
 
@@ -422,7 +427,7 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     networks:
-      webdev:
+      gantry:
         aliases:
           - caddy
 
@@ -441,7 +446,7 @@ services:
       - "80:80"
       - "443:443"
     networks:
-      webdev:
+      gantry:
         aliases:
           - nginx
           - proxy
@@ -458,6 +463,148 @@ services:
     ports:
       - "8888:8080"
     networks:
-      webdev:
+      gantry:
         aliases:
           - adminer
+
+  # --------------------------------------------------------------
+  # Loki — log aggregation  (profile: observability)
+  # Push logs: http://loki:3100/loki/api/v1/push
+  # Query (via Grafana datasource): http://loki:3100
+  # --------------------------------------------------------------
+  loki:
+    image: grafana/loki:latest
+    profiles: [ observability, full ]
+    restart: unless-stopped
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - loki-data:/loki
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+    ports:
+      - "3100:3100"
+    networks:
+      gantry:
+        aliases:
+          - loki
+
+  # --------------------------------------------------------------
+  # OpenTelemetry Collector  (profile: observability)
+  # OTLP gRPC: otelcol:4317  (host: localhost:14317)
+  # OTLP HTTP: otelcol:4318  (host: localhost:14318)
+  # Exports: traces → Jaeger, metrics → Prometheus, logs → Loki
+  # --------------------------------------------------------------
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:latest
+    profiles: [ observability, full ]
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/otelcol/config.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "14317:4317"
+      - "14318:4318"
+    depends_on:
+      - jaeger
+      - loki
+    networks:
+      gantry:
+        aliases:
+          - otelcol
+
+  # --------------------------------------------------------------
+  # Qdrant — vector database  (profile: vector)
+  # REST API: http://qdrant:6333
+  # gRPC:     qdrant:6334
+  # Dashboard: http://qdrant:6333/dashboard
+  # --------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:latest
+    profiles: [ vector, full ]
+    restart: unless-stopped
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:6333/readyz || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      gantry:
+        aliases:
+          - qdrant
+          - vector
+
+  # --------------------------------------------------------------
+  # Meilisearch — fast full-text search  (profile: meilisearch)
+  # API: http://meilisearch:7700
+  # Master key: devmasterkey
+  # --------------------------------------------------------------
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    profiles: [ meilisearch, full ]
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: devmasterkey
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearch-data:/meili_data
+    ports:
+      - "7700:7700"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:7700/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      gantry:
+        aliases:
+          - meilisearch
+          - search
+
+  # --------------------------------------------------------------
+  # NATS — lightweight pub/sub + JetStream  (profile: nats)
+  # Client: nats:4222  |  Monitoring: http://nats:8222
+  # --------------------------------------------------------------
+  nats:
+    image: nats:alpine
+    profiles: [ nats, full ]
+    restart: unless-stopped
+    command: ["--jetstream", "--store_dir=/data", "--http_port=8222"]
+    volumes:
+      - nats-data:/data
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      gantry:
+        aliases:
+          - nats
+
+  # --------------------------------------------------------------
+  # Keycloak — OIDC / OAuth2 identity provider  (profile: keycloak)
+  # Admin console: http://keycloak:8180  (admin / devpassword)
+  # OIDC discovery: http://keycloak:8180/realms/master/.well-known/openid-configuration
+  # --------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    profiles: [ keycloak, full ]
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: devpassword
+      KC_HTTP_PORT: "8180"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+    ports:
+      - "8180:8180"
+    networks:
+      gantry:
+        aliases:
+          - keycloak
+          - auth
