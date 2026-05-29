@@ -30,6 +30,18 @@ if [ -d "${HOME}/.ssh" ]; then
     -exec chmod 644 {} \; 2>/dev/null || true
 fi
 
+# Git identity check — runs on every start so users are reminded after a rebuild
+_GIT_NAME=$(git config --global user.name 2>/dev/null || true)
+_GIT_EMAIL=$(git config --global user.email 2>/dev/null || true)
+if [[ -z "$_GIT_NAME" || -z "$_GIT_EMAIL" ]]; then
+  echo "⚠️  Git identity not configured. Run:"
+  echo '     git config --global user.name  "Your Name"'
+  echo '     git config --global user.email "you@example.com"'
+else
+  echo "🔑 Git identity: ${_GIT_NAME} <${_GIT_EMAIL}>"
+fi
+unset _GIT_NAME _GIT_EMAIL
+
 # GitHub CLI auth status
 if gh auth status &>/dev/null; then
   GH_USER=$(gh api user --jq .login 2>/dev/null || echo "unknown")
