@@ -359,6 +359,7 @@ cmd_update() {
 
   if [[ -z "$plugin_names" ]]; then
     $quiet || info "No plugins installed."
+    generate_loader
     return 0
   fi
 
@@ -891,6 +892,10 @@ cmd_help() {
         Updates plugin.json with the repository URL after publishing.
         Requires 'gh auth login' on the host (or GH_TOKEN env var).
 
+    generate-loader
+        Regenerate .plugins/.loader.sh from the registry.
+        Run this if plugin commands are missing after a rebuild.
+
     help
         Show this message.
 
@@ -918,16 +923,17 @@ main() {
   shift || true
 
   case "$subcmd" in
-    install)       cmd_install "$@" ;;
-    remove)        cmd_remove "$@" ;;
-    update)        cmd_update "$@" ;;
-    list)          cmd_list "$@" ;;
-    docs)          cmd_docs "$@" ;;
-    check-updates) cmd_check_updates "$@" ;;
-    audit)         cmd_audit "$@" ;;
-    new)           cmd_new "$@" ;;
-    publish)       cmd_publish "$@" ;;
-    help|--help|-h) cmd_help ;;
+    install)         cmd_install "$@" ;;
+    remove)          cmd_remove "$@" ;;
+    update)          cmd_update "$@" ;;
+    list)            cmd_list "$@" ;;
+    docs)            cmd_docs "$@" ;;
+    check-updates)   cmd_check_updates "$@" ;;
+    audit)           cmd_audit "$@" ;;
+    new)             cmd_new "$@" ;;
+    publish)         cmd_publish "$@" ;;
+    generate-loader) require_plugins_dir; ensure_registry_valid; generate_loader ;;
+    help|--help|-h)  cmd_help ;;
     *) echo "  [plugin] Unknown subcommand: ${subcmd}" >&2; cmd_help; exit 1 ;;
   esac
 }

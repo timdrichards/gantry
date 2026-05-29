@@ -53,8 +53,12 @@ else
   echo "   Or        — run 'gh auth login' directly in this terminal"
 fi
 
-# ---- Auto-update plugins (background) --------------------------
+# ---- Plugin loader + auto-update --------------------------------
 if [[ -f /gantry/.plugins/.registry.json ]]; then
+  # Regenerate loader synchronously so commands are available the moment
+  # the first terminal opens, regardless of any background activity.
+  bash /gantry/.devcontainer/scripts/plugin-manager.sh generate-loader 2>/dev/null || true
+
   plugin_count=$(jq '.plugins | length' /gantry/.plugins/.registry.json 2>/dev/null || echo 0)
   if [[ "$plugin_count" -gt 0 ]]; then
     echo "🔌 Auto-updating ${plugin_count} plugin(s) in background..."
