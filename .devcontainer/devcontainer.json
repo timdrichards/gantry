@@ -95,7 +95,6 @@
 
       // ── Settings ─────────────────────────────────────────────────
       "settings": {
-
         // Terminal
         "terminal.integrated.defaultProfile.linux": "bash",
         "terminal.integrated.fontSize": 13,
@@ -105,7 +104,7 @@
         "editor.fontSize": 13,
         "editor.tabSize": 2,
         "editor.insertSpaces": true,
-        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrap": "bounded",
         "editor.wordWrapColumn": 80,
         "editor.rulers": [80],
         "editor.minimap.enabled": false,
@@ -119,30 +118,18 @@
         "editor.formatOnSave": true,
         "editor.formatOnPaste": false,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "[typescript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
+        "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
         "[typescriptreact]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
         },
-        "[javascript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
+        "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
         "[javascriptreact]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
         },
-        "[json]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[jsonc]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[css]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[html]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
+        "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+        "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+        "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+        "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
         "[markdown]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode",
           "editor.wordWrap": "on"
@@ -154,9 +141,7 @@
         "[shellscript]": {
           "editor.defaultFormatter": "foxundermoon.shell-format"
         },
-        "[prisma]": {
-          "editor.defaultFormatter": "Prisma.prisma"
-        },
+        "[prisma]": { "editor.defaultFormatter": "Prisma.prisma" },
 
         // TypeScript
         "typescript.preferences.importModuleSpecifier": "relative",
@@ -172,11 +157,14 @@
 
         // ESLint
         "eslint.enable": true,
-        "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+        "eslint.validate": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact"
+        ],
         "eslint.run": "onType",
-        "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": "explicit"
-        },
+        "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
 
         // Docker
         "docker.host": "unix:///var/run/docker.sock",
@@ -219,10 +207,7 @@
             "baseUrl": "http://localhost:3000",
             "contentType": "application/json"
           },
-          "dev": {
-            "host": "localhost",
-            "port": "3000"
-          }
+          "dev": { "host": "localhost", "port": "3000" }
         },
 
         // Tailwind CSS
@@ -245,7 +230,16 @@
         "errorLens.delay": 500,
 
         // TODO Tree
-        "todo-tree.general.tags": ["BUG", "HACK", "FIXME", "TODO", "XXX", "NOTE", "[ ]", "[x]"],
+        "todo-tree.general.tags": [
+          "BUG",
+          "HACK",
+          "FIXME",
+          "TODO",
+          "XXX",
+          "NOTE",
+          "[ ]",
+          "[x]"
+        ],
         "todo-tree.highlights.defaultHighlight": {
           "icon": "alert",
           "type": "text",
@@ -257,11 +251,51 @@
 
         // Better Comments
         "better-comments.tags": [
-          { "tag": "!", "color": "#FF2D00", "strikethrough": false, "underline": false, "backgroundColor": "transparent", "bold": false, "italic": false },
-          { "tag": "?", "color": "#3498DB", "strikethrough": false, "underline": false, "backgroundColor": "transparent", "bold": false, "italic": false },
-          { "tag": "//", "color": "#474747", "strikethrough": true, "underline": false, "backgroundColor": "transparent", "bold": false, "italic": false },
-          { "tag": "todo", "color": "#FF8C00", "strikethrough": false, "underline": false, "backgroundColor": "transparent", "bold": false, "italic": false },
-          { "tag": "*", "color": "#98C379", "strikethrough": false, "underline": false, "backgroundColor": "transparent", "bold": false, "italic": false }
+          {
+            "tag": "!",
+            "color": "#FF2D00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+          },
+          {
+            "tag": "?",
+            "color": "#3498DB",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+          },
+          {
+            "tag": "//",
+            "color": "#474747",
+            "strikethrough": true,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+          },
+          {
+            "tag": "todo",
+            "color": "#FF8C00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+          },
+          {
+            "tag": "*",
+            "color": "#98C379",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+          }
         ],
 
         // Coverage Gutters
@@ -292,9 +326,20 @@
 
         // Spell checker
         "cSpell.words": [
-          "devcontainer", "pnpm", "htmx", "prisma", "esbuild",
-          "vite", "vitest", "nodemon", "dotenv", "grpcurl",
-          "websocat", "mongosh", "healthcheck", "composefile"
+          "devcontainer",
+          "pnpm",
+          "htmx",
+          "prisma",
+          "esbuild",
+          "vite",
+          "vitest",
+          "nodemon",
+          "dotenv",
+          "grpcurl",
+          "websocat",
+          "mongosh",
+          "healthcheck",
+          "composefile"
         ]
       }
     }
@@ -304,35 +349,35 @@
   // Port forwards (add / remove as needed)
   // ----------------------------------------------------------------
   "forwardPorts": [
-    3000,  // app default
-    3001,  // app alt
-    4000,  // GraphQL / API
-    5000,  // Flask / misc
-    5173,  // Vite
-    8080,  // general HTTP
-    8443,  // general HTTPS
-    9090,  // Prometheus
-    3306,  // MySQL
-    5432,  // PostgreSQL
-    6379,  // Redis
+    3000, // app default
+    3001, // app alt
+    4000, // GraphQL / API
+    5000, // Flask / misc
+    5173, // Vite
+    8080, // general HTTP
+    8443, // general HTTPS
+    9090, // Prometheus
+    3306, // MySQL
+    5432, // PostgreSQL
+    6379, // Redis
     27017, // MongoDB
     11211, // Memcached
-    9200,  // Elasticsearch
-    4369,  // Erlang (RabbitMQ / BEAM)
-    2019,  // Caddy admin API
-    1025,  // Mailpit SMTP
-    8025,  // Mailpit web UI
-    9000,  // MinIO API
-    9001,  // MinIO console
-    9092,  // Redpanda Kafka API
-    8081,  // Redpanda Schema Registry
-    8082,  // Redpanda HTTP Proxy
-    9644,  // Redpanda Admin API
-    9080,  // Redpanda Console UI
+    9200, // Elasticsearch
+    4369, // Erlang (RabbitMQ / BEAM)
+    2019, // Caddy admin API
+    1025, // Mailpit SMTP
+    8025, // Mailpit web UI
+    9000, // MinIO API
+    9001, // MinIO console
+    9092, // Redpanda Kafka API
+    8081, // Redpanda Schema Registry
+    8082, // Redpanda HTTP Proxy
+    9644, // Redpanda Admin API
+    9080, // Redpanda Console UI
     16686, // Jaeger UI
-    4317,  // Jaeger OTLP gRPC
-    4318,  // Jaeger OTLP HTTP
-    8888   // Adminer
+    4317, // Jaeger OTLP gRPC
+    4318, // Jaeger OTLP HTTP
+    8888 // Adminer
   ],
   "portsAttributes": {
     "3000": { "label": "App (3000)", "onAutoForward": "notify" },
@@ -385,7 +430,5 @@
     "COMPOSE_DOCKER_CLI_BUILD": "1",
     "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
   },
-  "remoteEnv": {
-    "GH_TOKEN": "${localEnv:GH_TOKEN}"
-  }
+  "remoteEnv": { "GH_TOKEN": "${localEnv:GH_TOKEN}" }
 }

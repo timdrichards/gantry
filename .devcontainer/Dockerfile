@@ -39,6 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fzf \
     bat \
     fd-find \
+    lsd \
     tree \
     htop \
     less \
