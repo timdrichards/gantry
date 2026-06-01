@@ -9,3 +9,12 @@ build/
 NOTES.md
 .bashrc.user
 .plugins
+exp
+
+# We keep the repos folder and its README.md file, but we
+# ignore everything else inside of it (e.g., nested repos)
+/repos/*
+!/repos/README.md
+
+# Other things that only I care about
+.bashrc.canvas
