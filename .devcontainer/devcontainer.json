@@ -90,7 +90,8 @@
         "aaron-bond.better-comments",
         "alefragnani.bookmarks",
         "IBM.output-colorizer",
-        "HTMLHint.vscode-htmlhint"
+        "HTMLHint.vscode-htmlhint",
+        "Anthropic.claude-code"
       ],
 
       // ── Settings ─────────────────────────────────────────────────
