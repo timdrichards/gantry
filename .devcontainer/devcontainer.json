@@ -85,17 +85,19 @@
         "tomoyukim.vscode-mermaid-editor",
         "PKief.material-icon-theme",
         "oderwat.indent-rainbow",
-        "alefragnani.project-manager",
         "ms-vsliveshare.vsliveshare",
         "aaron-bond.better-comments",
         "alefragnani.bookmarks",
         "IBM.output-colorizer",
         "HTMLHint.vscode-htmlhint",
-        "Anthropic.claude-code"
+        "Anthropic.claude-code",
+        "cktan21.cursor--themes"
       ],
 
       // ── Settings ─────────────────────────────────────────────────
       "settings": {
+        // Color Theme
+        "workbench.colorTheme": "Cursor Dark Midnight",
         // Terminal
         "terminal.integrated.defaultProfile.linux": "bash",
         "terminal.integrated.fontSize": 13,
@@ -141,17 +143,13 @@
         },
         "[prisma]": { "editor.defaultFormatter": "Prisma.prisma" },
 
-        // TypeScript
-        "typescript.preferences.importModuleSpecifier": "relative",
-        "typescript.updateImportsOnFileMove.enabled": "always",
-        "typescript.suggest.autoImports": true,
-        "typescript.inlayHints.parameterNames.enabled": "literals",
-        "typescript.inlayHints.variableTypes.enabled": false,
-        "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
-
-        // JavaScript
-        "javascript.updateImportsOnFileMove.enabled": "always",
-        "javascript.suggest.autoImports": true,
+        // TypeScript + JavaScript (unified js/ts namespace)
+        "js/ts.preferences.importModuleSpecifier": "relative",
+        "js/ts.updateImportsOnFileMove.enabled": "always",
+        "js/ts.suggest.autoImports": true,
+        "js/ts.inlayHints.parameterNames.enabled": "literals",
+        "js/ts.inlayHints.variableTypes.enabled": false,
+        "js/ts.inlayHints.functionLikeReturnTypes.enabled": true,
 
         // ESLint
         "eslint.enable": true,
