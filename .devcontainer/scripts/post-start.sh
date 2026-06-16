@@ -6,6 +6,12 @@ set -euo pipefail
 
 echo "🚀 Dev container started."
 
+# Fix Docker socket group so vscode (member of 'docker') can access it.
+# The socket is owned root:root on some hosts; chown it to root:docker here.
+if [ -S /var/run/docker.sock ]; then
+  sudo chown root:docker /var/run/docker.sock 2>/dev/null || true
+fi
+
 # Verify Docker socket is accessible
 if docker info &>/dev/null; then
   echo "🐳 Docker socket: OK"
