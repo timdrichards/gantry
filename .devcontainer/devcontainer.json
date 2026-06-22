@@ -98,6 +98,11 @@
       "settings": {
         // Color Theme
         "workbench.colorTheme": "Cursor Dark Midnight",
+        "workbench.colorCustomizations": {
+          "editor.selectionBackground": "#2B6CB099",
+          "editor.inactiveSelectionBackground": "#2B6CB055",
+          "terminal.selectionBackground": "#2B6CB099"
+        },
         // Terminal
         "terminal.integrated.defaultProfile.linux": "bash",
         "terminal.integrated.fontSize": 13,

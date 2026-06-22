@@ -108,7 +108,12 @@ RUN npm install -g \
     dotenv-cli \
     # Misc dev utilities
     concurrently \
-    cross-env
+    cross-env \
+    # Markdown / HTML tooling
+    marked \
+    juice \
+    # Slides
+    @marp-team/marp-cli
 
 # ------------------------------------------------------------
 # 4. Docker CLI + Docker Compose (for DinD)
@@ -193,6 +198,18 @@ RUN ARCH=$(dpkg --print-architecture) \
     && curl -fsSL \
       "https://github.com/ducaale/xh/releases/download/${XH_VER}/xh-${XH_VER}-${XH_ARCH}-unknown-linux-musl.tar.gz" \
       | tar -xz --strip-components=1 -C /usr/local/bin --wildcards '*/xh' || true
+
+# qsv — high-performance CSV data-wrangling toolkit
+RUN ARCH=$(dpkg --print-architecture) \
+    && QSV_TARGET=$([ "$ARCH" = "amd64" ] && echo "x86_64-unknown-linux-musl" || echo "aarch64-unknown-linux-gnu") \
+    && QSV_VER=$(curl -s https://api.github.com/repos/jqnatividad/qsv/releases/latest \
+         | jq -r .tag_name) \
+    && curl -fsSL \
+      "https://github.com/jqnatividad/qsv/releases/download/${QSV_VER}/qsv-${QSV_VER}-${QSV_TARGET}.zip" \
+      -o /tmp/qsv.zip \
+    && unzip -q /tmp/qsv.zip qsv -d /usr/local/bin \
+    && chmod +x /usr/local/bin/qsv \
+    && rm /tmp/qsv.zip || true
 
 # ------------------------------------------------------------
 # 7. Shell ergonomics
