@@ -131,6 +131,7 @@ RUN install -m 0755 -d /etc/apt/keyrings \
     && apt-get install -y --no-install-recommends \
        docker-ce-cli \
        docker-compose-plugin \
+       docker-buildx-plugin \
     && rm -rf /var/lib/apt/lists/*
 
 # Convenience alias: `docker compose` → also available as `docker-compose`

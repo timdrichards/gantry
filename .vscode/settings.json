@@ -2,5 +2,9 @@
   "editor.wordWrap": "wordWrapColumn",
   "editor.wordWrapColumn": 80,
   "editor.wrappingIndent": "indent",
-  "todo-tree.ripgrep.ripgrep": "/usr/bin/rg"
+  "todo-tree.ripgrep.ripgrep": "/usr/bin/rg",
+  "cSpell.enabled": true,
+  "cSpell.enabledFileTypes": {
+    "shellscript": false
+  }
 }
