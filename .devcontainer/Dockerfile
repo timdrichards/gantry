@@ -1,10 +1,10 @@
 # ============================================================
 # Gantry Dev Container
-# Node.js LTS | Docker-in-Docker | Full Network Tooling
+# Node.js Current | Docker-in-Docker | Full Network Tooling
 # ============================================================
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
-ARG NODE_VERSION=22
+ARG NODE_VERSION=26
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=1000
