@@ -215,8 +215,8 @@ RUN ARCH=$(dpkg --print-architecture) \
 # ------------------------------------------------------------
 # 7. Shell ergonomics
 # ------------------------------------------------------------
-COPY shell/.bashrc_devcontainer /etc/bash_devcontainer
-RUN echo 'source /etc/bash_devcontainer' >> /etc/bash.bashrc
+RUN ln -s /gantry/.devcontainer/shell/.bashrc_devcontainer /etc/bash_devcontainer && \
+    echo 'source /etc/bash_devcontainer' >> /etc/bash.bashrc
 
 # ------------------------------------------------------------
 # 8. User setup — add vscode user to docker group (DinD)

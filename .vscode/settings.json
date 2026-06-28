@@ -6,5 +6,9 @@
   "cSpell.enabled": true,
   "cSpell.enabledFileTypes": {
     "shellscript": false
-  }
+  },
+  "cSpell.words": [
+    "autograder",
+    "Gradescope"
+  ]
 }

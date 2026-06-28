@@ -8,6 +8,7 @@ echo "🔧 Running post-create setup..."
 
 # ---- Configure git (safe directory for mounted workspace) ------
 git config --global --add safe.directory /gantry
+git config --global init.defaultBranch main
 
 # ---- Bash history file -----------------------------------------
 sudo mkdir -p /commandhistory

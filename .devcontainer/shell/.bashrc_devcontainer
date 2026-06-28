@@ -55,6 +55,48 @@ dexb() {
   fi
   docker exec -it "$container" "$shell"
 }
+# Translate /gantry volume paths to host paths for DooD bind-mounts.
+# The host daemon resolves -v paths on the host, not inside the container,
+# so /gantry must be swapped for the host workspace root before the call lands.
+docker() {
+  local -a args=()
+  local skip_next=0
+
+  _xlate_vol() {
+    local spec="$1"
+    # Named volumes and driver options have no leading / or ./ — pass through.
+    if [[ "$spec" != /* && "$spec" != ./* && "$spec" != ../* ]]; then
+      echo "$spec"; return
+    fi
+    local host_part="${spec%%:*}"
+    local container_rest="${spec#*:}"
+    [[ "$host_part" == "$spec" ]] && container_rest=""
+    host_part="$(realpath -m "$host_part" 2>/dev/null || echo "$host_part")"
+    host_part="${host_part/#\/gantry/${LOCAL_WORKSPACE_FOLDER}}"
+    if [[ -z "$container_rest" ]]; then
+      echo "$host_part"
+    else
+      echo "${host_part}:${container_rest}"
+    fi
+  }
+
+  for arg in "$@"; do
+    if [[ $skip_next -eq 1 ]]; then
+      args+=("$(_xlate_vol "$arg")")
+      skip_next=0
+    elif [[ "$arg" == "-v" || "$arg" == "--volume" ]]; then
+      args+=("$arg")
+      skip_next=1
+    elif [[ "$arg" == --volume=* ]]; then
+      args+=("--volume=$(_xlate_vol "${arg#--volume=}")")
+    else
+      args+=("$arg")
+    fi
+  done
+
+  command docker "${args[@]}"
+}
+
 alias dnet='docker network ls'
 alias dvol='docker volume ls'
 alias dprune='docker system prune -f'
