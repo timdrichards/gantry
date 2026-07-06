@@ -5,7 +5,8 @@ build/
 .cache/
 *.log
 .DS_Store
-.claude
+.claude/*
+!.claude/skills/
 NOTES.md
 .bashrc.user
 .plugins

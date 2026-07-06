@@ -568,4 +568,60 @@ Open the Command Palette and choose **Dev Containers: Rebuild Container**. This 
 
 ---
 
+## Maintainers: Cutting a Release
+
+Releases are dated GitHub releases (tag format `vMM-DD-YYYY`) whose asset is
+a distribution zip containing only the parts a template consumer needs:
+`.devcontainer/`, `.env.example`, and `README.md`. There is no CI automation
+— every release is cut by hand (or with Claude's help).
+
+### Using Claude Code
+
+Ask Claude to "cut a new release," or run `/release`. The full procedure —
+including how to handle a same-day re-release — lives in
+[`.claude/skills/release/SKILL.md`](.claude/skills/release/SKILL.md), which
+Claude will follow.
+
+### Doing it manually
+
+1. Make sure `main` is clean and has everything you want to ship, then tag
+   it with today's date:
+
+   ```bash
+   git tag -a vMM-DD-YYYY -m "gantry vMM-DD-YYYY"
+   git push origin vMM-DD-YYYY
+   ```
+
+2. Stage only the distributable files into a temp directory and zip them —
+   **not** a full repo archive. Do not include `docs/`, `CLAUDE.md`,
+   `.vscode/`, `.claude/`, or other repo-meta files:
+
+   ```bash
+   STAGE=$(mktemp -d)
+   cp -R .devcontainer "$STAGE/"
+   cp .env.example "$STAGE/"
+   cp README.md "$STAGE/"
+   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer .env.example README.md
+   ```
+
+3. Publish it:
+
+   ```bash
+   gh release create vMM-DD-YYYY /tmp/gantry-vMM-DD-YYYY.zip \
+     --repo timdrichards/gantry \
+     --title "gantry vMM-DD-YYYY" \
+     --notes "Distribution release vMM-DD-YYYY."
+   ```
+
+If a tag for today already exists and you want to replace it rather than
+stack a second release:
+
+```bash
+gh release delete vMM-DD-YYYY --repo timdrichards/gantry --cleanup-tag --yes
+git tag -a vMM-DD-YYYY -m "gantry vMM-DD-YYYY" <new-commit-sha>
+git push origin vMM-DD-YYYY
+```
+
+---
+
 *Questions or issues? Open an issue in the repository.*
