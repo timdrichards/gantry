@@ -65,7 +65,7 @@ You should see something like this:
   ╔══════════════════════════════════════════════════╗
   ║  Web Dev + Scalable Systems  •  Dev Container    ║
   ╠══════════════════════════════════════════════════╣
-  ║  Node v22.x.x  npm x.x.x  pnpm x.x.x           ║
+  ║  Node v26.x.x  npm x.x.x  pnpm x.x.x           ║
   ║  Docker 27.x.x                                   ║
   ║  Plugins: 0 active  •  'plugin help'             ║
   ╠══════════════════════════════════════════════════╣
@@ -264,6 +264,12 @@ Start any service with `dc-up <name>`. Stop everything with `dc-down`.
 | Prometheus        | `dc-up prometheus`      | Metrics collection (port 9090)                  |
 | Grafana           | `dc-up grafana`         | Metrics dashboards. admin / admin (port 3030)   |
 | Jaeger            | `dc-up jaeger`          | Distributed tracing UI (port 16686)             |
+| Loki              | `dc-up loki`            | Log aggregation, pairs with Grafana (port 3100) |
+| Otelcol           | `dc-up otelcol`         | OpenTelemetry collector for traces/metrics/logs |
+| Qdrant            | `dc-up qdrant`          | Vector database for embeddings / similarity search |
+| Meilisearch       | `dc-up meilisearch`     | Fast full-text search engine (port 7700)        |
+| NATS              | `dc-up nats`            | Lightweight messaging system                    |
+| Keycloak          | `dc-up keycloak`        | Identity and access management (SSO/OAuth)      |
 
 **Start multiple services at once:**
 
@@ -433,6 +439,10 @@ When writing code that connects to a database or other service, use the **servic
 | MinIO         | `minio`                  | 9000  | `minioadmin` | `minioadmin` | —    |
 | Redpanda      | `redpanda`               | 9092  | —        | —           | —        |
 | SMTP (Mailpit)| `mailpit`                | 1025  | —        | —           | —        |
+| Qdrant        | `qdrant`                 | 6333  | —        | —           | —        |
+| Meilisearch   | `meilisearch`            | 7700  | —        | `devmasterkey` (master key) | — |
+| NATS          | `nats`                   | 4222  | —        | —           | —        |
+| Keycloak      | `keycloak`               | 8180  | `admin`  | `devpassword` | —      |
 
 Example PostgreSQL connection string for Node.js:
 ```
@@ -458,6 +468,12 @@ Your browser on your laptop can reach these ports directly (VS Code forwards the
 | 3030  | Grafana dashboards (admin / admin)                 |
 | 16686 | Jaeger tracing UI                                  |
 | 15672 | RabbitMQ management (dev / devpassword)            |
+| 3100  | Loki (log aggregation API)                         |
+| 14318 | Otelcol OTLP HTTP receiver (14317 for gRPC)        |
+| 6333  | Qdrant vector database API                         |
+| 7700  | Meilisearch search API                             |
+| 8222  | NATS monitoring (4222 for client connections)      |
+| 8180  | Keycloak admin console (admin / devpassword)       |
 
 Open `http://localhost:<port>` in your browser.
 
