@@ -102,7 +102,7 @@ alias dvol='docker volume ls'
 alias dprune='docker system prune -f'
 
 # Start individual services from anywhere
-dc-up()   { dc up -d "$@"; }
+dc-up()   { dc up -d --wait "$@"; }
 dc-down() { dc down "$@"; }
 dc-logs() { dc logs -f "$@"; }
 
