@@ -568,6 +568,17 @@ Open the Command Palette and choose **Dev Containers: Rebuild Container**. This 
 
 ---
 
+## Upgrading Gantry
+
+Already have Gantry set up and just need to move to a newer release? See the
+step-by-step
+[Upgrading Gantry guide](https://github.com/timdrichards/gantry/blob/main/docs/upgrading.md)
+— it covers backing up your work, swapping in the new `.devcontainer/`
+folder, checking `.env.example` for new variables, and confirming nothing
+about your existing databases or plugins was touched.
+
+---
+
 ## Maintainers: Cutting a Release
 
 Releases are dated GitHub releases (tag format `vMM-DD-YYYY`) whose asset is
