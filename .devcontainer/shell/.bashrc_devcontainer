@@ -137,7 +137,7 @@ wstest() { websocat "$1"; }
 # ---- Database shortcuts ----------------------------------------
 alias psql-dev='psql -h postgres -U dev -d devdb'
 alias redis-dev='redis-cli -h redis'
-alias mongo-dev='mongosh "mongodb://dev:devpassword@mongo:27017/devdb"'
+alias mongo-dev='mongosh "mongodb://dev:devpassword@mongo:27017/devdb?authSource=admin"'
 alias mysql-dev='mysql -h mysql -u dev -pdevpassword devdb'
 
 # ---- k6 load testing -------------------------------------------

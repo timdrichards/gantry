@@ -110,7 +110,7 @@ services:
 
   # --------------------------------------------------------------
   # MongoDB  (profile: mongo)
-  # Connect: mongosh mongodb://dev:devpassword@mongo:27017/devdb
+  # Connect: mongosh mongodb://dev:devpassword@mongo:27017/devdb?authSource=admin
   # --------------------------------------------------------------
   mongo:
     image: mongo:7
