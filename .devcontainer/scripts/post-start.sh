@@ -36,6 +36,14 @@ if [ -d "${HOME}/.ssh" ]; then
     -exec chmod 644 {} \; 2>/dev/null || true
 fi
 
+# gh CLI config ownership — if the host's ~/.config/gh didn't exist before
+# the bind mount was created, Docker auto-creates it as root, which blocks
+# `gh auth login` from writing hosts.yml as the vscode user. Fix it every
+# start so this only ever has to be hit once.
+if [ -d "${HOME}/.config/gh" ]; then
+  sudo chown -R vscode:vscode "${HOME}/.config/gh" 2>/dev/null || true
+fi
+
 # Git identity check — runs on every start so users are reminded after a rebuild
 _GIT_NAME=$(git config --global user.name 2>/dev/null || true)
 _GIT_EMAIL=$(git config --global user.email 2>/dev/null || true)
