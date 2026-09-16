@@ -26,16 +26,6 @@ docker network inspect gantry \
   --format '{{range .Containers}}     • {{.Name}} ({{.IPv4Address}}){{"\n"}}{{end}}' \
   2>/dev/null || echo "   (none yet — start services with dc-up <service>)"
 
-# SSH key permissions — Docker bind-mounts can inherit loose host permissions
-# which cause SSH to reject the keys. Normalise them on every start.
-if [ -d "${HOME}/.ssh" ]; then
-  chmod 700 "${HOME}/.ssh" 2>/dev/null || true
-  find "${HOME}/.ssh" -maxdepth 1 -type f ! -name "*.pub" \
-    -exec chmod 600 {} \; 2>/dev/null || true
-  find "${HOME}/.ssh" -maxdepth 1 -name "*.pub" \
-    -exec chmod 644 {} \; 2>/dev/null || true
-fi
-
 # Git identity check — runs on every start so users are reminded after a rebuild
 _GIT_NAME=$(git config --global user.name 2>/dev/null || true)
 _GIT_EMAIL=$(git config --global user.email 2>/dev/null || true)

@@ -410,12 +410,12 @@
   // and needs no host-side setup on any OS. The `git` shell wrapper in
   // shell/.bashrc_devcontainer reminds you to do this before push/pull/
   // fetch if you haven't yet.
+  //
+  // No host filesystem is mounted in for authentication — SSH keys
+  // included. Use HTTPS remotes; `gh auth setup-git` (post-create.sh)
+  // registers `gh` as the git credential helper so push/pull just work
+  // once you've run `gh auth login`.
   // ----------------------------------------------------------------
-  "mounts": [
-    // SSH keys — needed for git push over SSH (git@github.com remotes).
-    // post-start.sh normalises file permissions inside the container.
-    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
-  ],
 
   // ----------------------------------------------------------------
   // Remote user

@@ -454,38 +454,15 @@ gh api user --jq .login
 
 ## git push from inside the container
 
-`git push` works for both HTTPS and SSH remotes.
+`git push` works over HTTPS remotes (`https://github.com/…`) only — there's no `~/.ssh` mount, so SSH remotes (`git@github.com:…`) won't have a key to use. If a repo was cloned with an SSH URL, switch its remote to HTTPS: `git remote set-url origin https://github.com/<org>/<repo>.git`.
 
-### HTTPS remotes (`https://github.com/…`)
-
-`post-create.sh` runs `gh auth setup-git` automatically. This registers `gh` as the Git credential helper for GitHub HTTPS URLs, so `git push` silently obtains a token from the already-authenticated `gh` — no password prompts.
+`post-create.sh` runs `gh auth setup-git` automatically. This registers `gh` as the Git credential helper for GitHub HTTPS URLs, so `git push` silently obtains a token from the already-authenticated `gh` — no password prompts, once you've run `gh auth login` (see above).
 
 Verify the helper is wired up:
 
 ```bash
 git config --list | grep credential
 # should include: credential.https://github.com.helper=!gh auth git-credential
-```
-
-### SSH remotes (`git@github.com:…`)
-
-`devcontainer.json` bind-mounts `~/.ssh` from the host into the container. `post-start.sh` normalises file permissions on every start (SSH rejects keys whose permissions are too open, which can happen when Docker copies permissions from a Windows host).
-
-Verify SSH auth works:
-
-```bash
-ssh -T git@github.com
-# Hi <username>! You've successfully authenticated...
-```
-
-If that fails, check that your SSH key is added to your GitHub account and that the key file exists at `~/.ssh` on the **host** machine (not just inside the container).
-
-### Windows note
-
-The `~/.ssh` mount path resolves to `%USERPROFILE%\.ssh` on Windows, which is where the Windows OpenSSH client stores keys. This should work correctly via Docker Desktop's path translation. If SSH still fails, confirm the key permissions are `600` inside the container:
-
-```bash
-ls -la ~/.ssh
 ```
 
 ---
