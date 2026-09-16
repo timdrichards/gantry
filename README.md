@@ -572,7 +572,7 @@ Open the Command Palette and choose **Dev Containers: Rebuild Container**. This 
 
 Already have Gantry set up and just need to move to a newer release? See the
 step-by-step
-[Upgrading Gantry guide](https://github.com/timdrichards/gantry/blob/main/docs/upgrading.md)
+[Upgrading Gantry guide](https://github.com/timdrichards/gantry/blob/main/.devcontainer/docs/upgrading.md)
 — it covers backing up your work, swapping in the new `.devcontainer/`
 folder, checking `.env.example` for new variables, and confirming nothing
 about your existing databases or plugins was touched.
@@ -583,8 +583,9 @@ about your existing databases or plugins was touched.
 
 Releases are dated GitHub releases (tag format `vMM-DD-YYYY`) whose asset is
 a distribution zip containing only the parts a template consumer needs:
-`.devcontainer/`, `.env.example`, and `README.md`. There is no CI automation
-— every release is cut by hand (or with Claude's help).
+`.devcontainer/` (minus the developer-only `.devcontainer/docs/`), `doc/`,
+`.env.example`, and `README.md`. There is no CI automation — every release
+is cut by hand (or with Claude's help).
 
 ### Using Claude Code
 
@@ -604,15 +605,17 @@ Claude will follow.
    ```
 
 2. Stage only the distributable files into a temp directory and zip them —
-   **not** a full repo archive. Do not include `docs/`, `CLAUDE.md`,
-   `.vscode/`, `.claude/`, or other repo-meta files:
+   **not** a full repo archive. Do not include `.devcontainer/docs/`,
+   `CLAUDE.md`, `.vscode/`, `.claude/`, or other repo-meta files:
 
    ```bash
    STAGE=$(mktemp -d)
    cp -R .devcontainer "$STAGE/"
+   rm -rf "$STAGE/.devcontainer/docs"
+   cp -R doc "$STAGE/"
    cp .env.example "$STAGE/"
    cp README.md "$STAGE/"
-   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer .env.example README.md
+   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer doc .env.example README.md
    ```
 
 3. Publish it:

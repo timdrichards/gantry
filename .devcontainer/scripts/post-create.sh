@@ -116,4 +116,14 @@ plugin help                             # Full usage guide
 EOF
 fi
 
+# ---- Local extension hook ---------------------------------------
+# Optional, repo-local addition point. gantry itself never ships this
+# file — it exists so a downstream distribution of this template (e.g.
+# a student repo kept in sync with this one) can carry its own setup
+# steps without editing this file directly, since that would get
+# overwritten on every sync.
+if [[ -f /gantry/.devcontainer/scripts/post-create.local.sh ]]; then
+  bash /gantry/.devcontainer/scripts/post-create.local.sh
+fi
+
 echo "✅ post-create complete."

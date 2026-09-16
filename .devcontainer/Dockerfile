@@ -112,6 +112,8 @@ RUN npm install -g \
     # Markdown / HTML tooling
     marked \
     juice \
+    # Terminal markdown viewer — `leaf <file>` for a GUI-like TUI preview
+    @rivolink/leaf \
     # Slides
     @marp-team/marp-cli
 

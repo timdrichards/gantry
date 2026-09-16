@@ -59,3 +59,9 @@ if [[ -f /gantry/.plugins/.registry.json ]]; then
     bash /gantry/.devcontainer/scripts/plugin-manager.sh update --all --quiet &
   fi
 fi
+
+# ---- Local extension hook ---------------------------------------
+# See the matching note in post-create.sh — no-op in gantry itself.
+if [[ -f /gantry/.devcontainer/scripts/post-start.local.sh ]]; then
+  bash /gantry/.devcontainer/scripts/post-start.local.sh
+fi

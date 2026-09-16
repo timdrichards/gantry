@@ -17,6 +17,11 @@ A VS Code dev container configuration template for web development projects. The
 ├── scripts/post-create.sh     # Runs once after image build
 ├── scripts/post-start.sh      # Runs on every container start
 ├── scripts/plugin-manager.sh  # Plugin management (install/remove/update/list/docs)
+├── docs/                      # Developer docs (not shipped to students — see release skill)
+│   ├── plugin-dev.md
+│   ├── plugins-list.md
+│   ├── rg.md
+│   └── upgrading.md
 ├── services/                  # Config files bind-mounted into specific sidecars
 │   ├── caddy/Caddyfile
 │   ├── mongo/init/01-init.js
@@ -24,9 +29,48 @@ A VS Code dev container configuration template for web development projects. The
 │   ├── postgres/init/01-init.sql
 │   ├── prometheus/prometheus.yml
 │   └── redpanda/console-config.yml
+doc/                            # Student-facing docs — shipped to students
+work/                           # Student scratch space for their own repos; gitignored except README.md
 .gitattributes                 # Enforces LF for .sh, .yml, .yaml, Dockerfile, Caddyfile
 .env.example                   # Connection strings using Docker network hostnames
 ```
+
+## Student Distribution: the `cargo` Repo
+
+`gantry` is the instructor/development repo — it has things students should
+never see: `.claude/`, `CLAUDE.md`, `.devcontainer/docs/` (developer docs),
+`NOTES.md`, etc. **`timdrichards/cargo`** (public, marked as a GitHub
+template repo) is the student-facing copy. Students use "Use this template"
+to get their own independent copy — there is no git relationship back to
+`cargo`, and no git relationship from `cargo` back to `gantry` either.
+
+- **Sync**: `.github/workflows/sync-cargo.yml` runs on every push to
+  `gantry`'s `main`. It calls `.github/scripts/stage-cargo.sh` to build the
+  filtered file set (same logic the release skill's zip staging uses:
+  `.devcontainer/` minus `.devcontainer/docs/`, plus `doc/`, `.env.example`,
+  `README.md`, `.gitignore`, `.gitattributes`, `work/README.md`), then
+  commits and pushes that into `cargo`'s `main` if anything changed. This
+  needs a `CARGO_SYNC_TOKEN` repo secret (a fine-grained PAT scoped to
+  `Contents: Read and write` on `timdrichards/cargo` only) — without it the
+  sync job fails at the `cargo` checkout step.
+- **Local-hook pattern**: `cargo` needs two things `gantry` doesn't —
+  wiring an `upstream` git remote back to `timdrichards/cargo`, and a
+  throttled "updates available" check on container start (see
+  `doc/updating.md`). Since the sync overwrites `.devcontainer/` wholesale,
+  those can't live directly in `post-create.sh`/`post-start.sh`. Instead
+  those two scripts each end with a no-op-in-gantry hook:
+  ```bash
+  [[ -f /gantry/.devcontainer/scripts/post-create.local.sh ]] && bash ...
+  ```
+  `cargo` (and only `cargo`) carries the actual `post-create.local.sh` /
+  `post-start.local.sh` files. `stage-cargo.sh` explicitly excludes those
+  two paths from its `rsync --delete`, so they survive every sync
+  untouched. If you ever need `cargo` to diverge from `gantry` in some
+  other file, this is the pattern to extend rather than hand-editing
+  `cargo` directly (any such edit is silently overwritten on the next push
+  to `gantry`'s `main`).
+- **`doc/updating.md`** documents the student-facing update procedure
+  (`git fetch upstream && git merge upstream/main`, then rebuild).
 
 ## When a Container Rebuild Is Required
 

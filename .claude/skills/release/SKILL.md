@@ -1,6 +1,6 @@
 ---
 name: release
-description: Cut a new dated GitHub release of this gantry devcontainer template — tags HEAD as vMM-DD-YYYY, builds a distribution zip containing only .devcontainer/, .env.example, and README.md, and publishes it via gh release create. Trigger when the user asks to "cut a release," "make/generate a new release," or references the gantry release procedure.
+description: Cut a new dated GitHub release of this gantry devcontainer template — tags HEAD as vMM-DD-YYYY, builds a distribution zip containing only .devcontainer/ (minus .devcontainer/docs/), doc/, .env.example, and README.md, and publishes it via gh release create. Trigger when the user asks to "cut a release," "make/generate a new release," or references the gantry release procedure.
 ---
 
 # Release
@@ -36,23 +36,28 @@ procedure run from a clean `main`.
 2. **Stage the distribution file set.** The release zip is **not** a full
    repo archive. It contains only:
 
-   - `.devcontainer/`
+   - `.devcontainer/` (minus `.devcontainer/docs/` — see below)
+   - `doc/`
    - `.env.example`
    - `README.md`
 
-   Explicitly excluded: `docs/`, `CLAUDE.md`, `.vscode/`, `.claude/`,
-   `.gitignore`, `.gitattributes`, `NOTES.md`, `cspell.json`, and any other
-   repo-meta file. This list has drifted before (`docs/` was mistakenly
-   included in an earlier release) — verify against this list each time
-   rather than copying the contents of a prior release's zip by analogy.
+   Explicitly excluded: `.devcontainer/docs/` (developer docs — nested
+   inside `.devcontainer/` but must NOT ship), `CLAUDE.md`, `.vscode/`,
+   `.claude/`, `.gitignore`, `.gitattributes`, `NOTES.md`, and any other
+   repo-meta file. This list has drifted before (the old top-level `docs/`
+   was mistakenly included in an earlier release, before it moved under
+   `.devcontainer/`) — verify against this list each time rather than
+   copying the contents of a prior release's zip by analogy.
 
    ```bash
    STAGE=$(mktemp -d)
    cp -R .devcontainer "$STAGE/"
+   rm -rf "$STAGE/.devcontainer/docs"
+   cp -R doc "$STAGE/"
    cp .env.example "$STAGE/"
    cp README.md "$STAGE/"
    find "$STAGE" -name ".DS_Store" -delete
-   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer .env.example README.md
+   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer doc .env.example README.md
    ```
 
 3. **Publish the release**

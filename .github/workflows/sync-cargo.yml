@@ -1,0 +1,44 @@
+name: Sync cargo (student distribution)
+
+# Mirrors the student-facing subset of this repo (see
+# .github/scripts/stage-cargo.sh) into timdrichards/cargo on every push
+# to main, so "Use this template" always reflects the latest release-
+# ready state. Requires a CARGO_SYNC_TOKEN secret: a fine-grained PAT
+# with Contents: Read and write on timdrichards/cargo only.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gantry
+        uses: actions/checkout@v4
+        with:
+          path: gantry
+
+      - name: Checkout cargo
+        uses: actions/checkout@v4
+        with:
+          repository: timdrichards/cargo
+          token: ${{ secrets.CARGO_SYNC_TOKEN }}
+          path: cargo
+
+      - name: Stage distribution content
+        run: gantry/.github/scripts/stage-cargo.sh gantry cargo
+
+      - name: Commit and push if changed
+        working-directory: cargo
+        run: |
+          git config user.name "gantry-sync[bot]"
+          git config user.email "actions@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+            exit 0
+          fi
+          git commit -m "Sync from timdrichards/gantry@${{ github.sha }}"
+          git push
