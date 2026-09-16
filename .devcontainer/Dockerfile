@@ -226,7 +226,15 @@ RUN groupadd -f docker \
     && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/${USERNAME}
 
 # ------------------------------------------------------------
-# 9. Working directory
+# 9. Seed gh CLI config dir so the named volume mounted over it
+#    (see compose.yml) inherits vscode ownership on first creation
+#    instead of Docker's default root:root for a new mount point.
+# ------------------------------------------------------------
+RUN mkdir -p /home/${USERNAME}/.config/gh \
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.config
+
+# ------------------------------------------------------------
+# 10. Working directory
 # ------------------------------------------------------------
 WORKDIR /gantry
 USER ${USERNAME}

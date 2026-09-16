@@ -46,6 +46,7 @@ volumes:
   keycloak-data:
   nats-data:
   devcontainer-bashhistory:
+  gh-config-data:
 
     # ----------------------------------------------------------------
     # Services
@@ -69,6 +70,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # Persist shell history across rebuilds
       - devcontainer-bashhistory:/commandhistory
+      # gh CLI auth config — named volume (not a host bind-mount) so it's
+      # owned correctly from creation on every OS. Run `gh auth login`
+      # once per container; it persists across restarts and rebuilds.
+      - gh-config-data:/home/vscode/.config/gh
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock
       HISTFILE: /commandhistory/.bash_history

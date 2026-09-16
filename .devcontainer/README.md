@@ -420,31 +420,26 @@ macOS users (Docker Desktop) do not need this step.
 
 ## GitHub CLI Authentication
 
-`gh` is pre-installed in the container. Authentication is shared from the host automatically on Mac and Linux. On Windows, a token must be passed explicitly.
+`gh` is pre-installed in the container. Its config lives in the `gh-config-data` named volume (`compose.yml`), not a host bind-mount, so setup is identical on every OS.
 
-### Mac / Linux
+### All platforms
 
-No setup required. `devcontainer.json` bind-mounts `~/.config/gh` from the host into the container, so if you are already authenticated on the host (`gh auth status` returns OK), the container inherits that auth on every start.
-
-If you are not yet authenticated on the host:
+Run this once, inside a container terminal:
 
 ```bash
-gh auth login   # run on the host, not inside the container
+gh auth login
 ```
 
-Then rebuild the container once so the mount picks up the new config.
+Use the browser flow (`HTTPS + Login with browser`) or a token. This persists across container restarts and rebuilds — the same named volume is reattached every time — so you never need to repeat it unless the volume itself is removed (`dc down -v` or `docker volume rm`).
 
-### Windows
+A host bind-mount was used here previously, but it caused platform-specific permission failures: Docker auto-creating the mount point as `root` when the host path didn't already exist, macOS file-access-permission prompts blocking it entirely, and Windows storing `gh`'s config somewhere else entirely (`%APPDATA%\GitHub CLI`). A named volume sidesteps all of that — it's created and owned by Docker itself.
 
-`gh` on Windows stores its auth config in `%APPDATA%\GitHub CLI`, not in `~/.config/gh`, so the bind-mount does not apply.
+### Non-interactive alternative: GH_TOKEN
 
-Instead, set `GH_TOKEN` as a persistent environment variable on your host:
+If you'd rather not run the interactive login (e.g. scripted setups), set `GH_TOKEN` as a persistent environment variable on your host and rebuild — `devcontainer.json` forwards it via `remoteEnv`, and `gh` picks it up automatically:
 
 1. Generate a personal access token at **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**. Grant it the scopes your work needs (at minimum: `repo`, `read:org`).
-2. Add it to your host environment:
-   - **Windows**: System → Advanced system settings → Environment Variables → add `GH_TOKEN = <your-token>` under user variables.
-   - **PowerShell** (current session only): `$env:GH_TOKEN = "your-token"`
-3. Rebuild the container — `devcontainer.json` forwards `GH_TOKEN` via `remoteEnv`, and `gh` will pick it up automatically.
+2. **Windows**: System → Advanced system settings → Environment Variables → add `GH_TOKEN = <your-token>` under user variables. **Mac/Linux**: add `export GH_TOKEN=<your-token>` to your shell profile.
 
 ### Verifying inside the container
 
@@ -453,11 +448,7 @@ gh auth status
 gh api user --jq .login
 ```
 
-`post-start.sh` also prints the authenticated username (or a warning) every time the container starts.
-
-### Running gh auth login inside the container
-
-If you prefer, you can skip host-side setup entirely and run `gh auth login` directly in a container terminal. Use the browser flow (`HTTPS + Login with browser`) or a token. The config will persist for the lifetime of the container but will not survive a rebuild unless the `~/.config/gh` bind-mount is in place (Mac/Linux).
+`post-start.sh` also prints the authenticated username (or a warning) every time the container starts. Additionally, the `git` shell function (`shell/.bashrc_devcontainer`) checks `gh auth status` before `push`/`pull`/`fetch` and prints a reminder instead of letting the command fail with a cryptic credential-helper error.
 
 ---
 

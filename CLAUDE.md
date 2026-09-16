@@ -132,10 +132,12 @@ These invariants must be preserved when editing configuration:
 
 ## gh CLI and git Authentication
 
-- **Mac/Linux**: `~/.config/gh` is bind-mounted from the host. If `gh auth login` has been run on the host, auth is available automatically inside the container.
-- **Windows**: Set `GH_TOKEN` as a host environment variable; it is forwarded via `remoteEnv` in `devcontainer.json`.
+- **gh config**: `~/.config/gh` lives in the `gh-config-data` named volume (`compose.yml`), not a host bind-mount. This is deliberate — a host bind-mount here previously caused platform-specific permission failures (Docker auto-creating the mount point as root when the host path didn't already exist, macOS file-access-permission prompts, Windows storing gh's config elsewhere entirely). A named volume is created and owned by Docker itself, so there's no host filesystem involved and no per-OS special-casing. The Dockerfile pre-creates and chowns `/home/vscode/.config/gh` so the volume inherits correct ownership the first time it's attached.
+- Run `gh auth login` once inside the container terminal, on any OS. It persists across restarts and rebuilds (same named volume, reattached each time) — there is no host-side setup step anymore.
+- **Windows fallback**: `GH_TOKEN` can still be set as a host environment variable and is forwarded via `remoteEnv` in `devcontainer.json`, as a non-interactive alternative to `gh auth login`.
 - **HTTPS git push**: `post-create.sh` runs `gh auth setup-git`, which registers `gh` as the Git credential helper for `https://github.com` URLs.
-- **SSH git push**: `~/.ssh` is bind-mounted from the host. `post-start.sh` runs `chmod 600/644` on the mounted keys every start to normalize permissions that Docker may inherit loosely from Windows hosts.
+- **SSH git push**: `~/.ssh` is still bind-mounted from the host (unlike gh config, SSH keys are meant to be the user's own pre-existing identity, not container-local state). `post-start.sh` runs `chmod 600/644` on the mounted keys every start to normalize permissions that Docker may inherit loosely from Windows hosts.
+- **git wrapper**: the `git()` shell function in `shell/.bashrc_devcontainer` checks `gh auth status` before `push`/`pull`/`fetch` and prints a reminder to run `gh auth login` instead of letting the command fail with a cryptic credential-helper error. `clone` and other subcommands are intentionally not gated, since those commonly work fine unauthenticated (public repos, local-only `remote` config).
 
 ## Service Config Files
 
