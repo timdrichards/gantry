@@ -149,7 +149,9 @@ The VS Code specification file. Key fields:
 | `remoteUser` | `vscode` | Non-root user inside the container |
 | `containerEnv` | `LOCAL_WORKSPACE_FOLDER` | Passes the host workspace path in; used by `compose.yml` to resolve volume mounts |
 
-The `features` block enables the Docker-outside-of-Docker feature, which installs the Docker CLI and adds the `vscode` user to the `docker` group.
+The `features` block enables:
+- **Docker-outside-of-Docker** — installs the Docker CLI and adds the `vscode` user to the `docker` group.
+- **sshd** — runs an SSH server inside the container. This is only for GitHub Codespaces' own connection methods (`gh codespace ssh`, VS Code's "Connect via SSH"); it's unrelated to `gh` CLI / git auth, which use HTTPS (see below).
 
 ### compose.yml
 
