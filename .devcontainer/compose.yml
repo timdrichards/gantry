@@ -100,8 +100,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/postgres/init:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dev -d devdb"]
       interval: 5s
@@ -128,8 +126,6 @@ services:
     volumes:
       - mongo-data:/data/db
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/mongo/init:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "27017:27017"
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
       interval: 5s
@@ -153,8 +149,6 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis-data:/data
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -181,8 +175,6 @@ services:
       MYSQL_PASSWORD: devpassword
     volumes:
       - mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dev", "-pdevpassword"]
       interval: 5s
@@ -195,7 +187,8 @@ services:
 
   # --------------------------------------------------------------
   # RabbitMQ  (profile: rabbitmq)
-  # Management UI: http://localhost:15672  (dev / devpassword)
+  # Management UI: http://rabbitmq:15672  (dev / devpassword)
+  # (also http://localhost:15672 outside Codespaces)
   # AMQP: amqp://dev:devpassword@rabbitmq:5672
   # --------------------------------------------------------------
   rabbitmq:
@@ -207,9 +200,6 @@ services:
       RABBITMQ_DEFAULT_PASS: devpassword
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     networks:
       gantry:
         aliases:
@@ -234,8 +224,6 @@ services:
         hard: -1
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -255,8 +243,6 @@ services:
     image: memcached:alpine
     profiles: [ memcached, full ]
     restart: unless-stopped
-    ports:
-      - "11211:11211"
     networks:
       gantry:
         aliases:
@@ -270,9 +256,6 @@ services:
     image: axllent/mailpit
     profiles: [ mailpit, full ]
     restart: unless-stopped
-    ports:
-      - "1025:1025"
-      - "8025:8025"
     networks:
       gantry:
         aliases:
@@ -294,9 +277,6 @@ services:
       MINIO_ROOT_PASSWORD: devpassword
     volumes:
       - minio-data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     networks:
       gantry:
         aliases:
@@ -330,11 +310,6 @@ services:
       - --default-log-level=info
     volumes:
       - redpanda-data:/var/lib/redpanda/data
-    ports:
-      - "9092:9092"
-      - "8081:8081"
-      - "8082:8082"
-      - "9644:9644"
     healthcheck:
       test: ["CMD", "rpk", "cluster", "health"]
       interval: 10s
@@ -357,8 +332,6 @@ services:
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/redpanda/console-config.yml:/etc/redpanda-console/config.yml:ro
     environment:
       CONFIG_FILEPATH: /etc/redpanda-console/config.yml
-    ports:
-      - "9080:8080"
     networks:
       gantry:
         aliases:
@@ -366,7 +339,7 @@ services:
 
   # --------------------------------------------------------------
   # Prometheus  (profile: observability)
-  # UI: http://localhost:9090
+  # UI: http://prometheus:9090 (also http://localhost:9090 outside Codespaces)
   # --------------------------------------------------------------
   prometheus:
     image: prom/prometheus:latest
@@ -374,8 +347,6 @@ services:
     restart: unless-stopped
     volumes:
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-      - "9090:9090"
     networks:
       gantry:
         aliases:
@@ -383,7 +354,8 @@ services:
 
   # --------------------------------------------------------------
   # Grafana  (profile: observability)
-  # UI: http://localhost:3030  (admin / admin)
+  # UI: http://grafana:3030  (admin / admin)
+  # (also http://localhost:3030 outside Codespaces)
   # --------------------------------------------------------------
   grafana:
     image: grafana/grafana:latest
@@ -392,8 +364,6 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_SERVER_HTTP_PORT: "3030"
-    ports:
-      - "3030:3030"
     networks:
       gantry:
         aliases:
@@ -410,10 +380,6 @@ services:
     restart: unless-stopped
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
-    ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
     networks:
       gantry:
         aliases:
@@ -429,10 +395,6 @@ services:
     image: caddy:alpine
     profiles: [ caddy ]
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "2019:2019"
     volumes:
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
@@ -453,9 +415,6 @@ services:
     volumes:
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/nginx/conf.d:/etc/nginx/conf.d:ro
-    ports:
-      - "80:80"
-      - "443:443"
     networks:
       gantry:
         aliases:
@@ -471,8 +430,6 @@ services:
     image: adminer
     profiles: [ adminer, full ]
     restart: unless-stopped
-    ports:
-      - "8888:8080"
     networks:
       gantry:
         aliases:
@@ -491,8 +448,6 @@ services:
     volumes:
       - loki-data:/loki
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
-    ports:
-      - "3100:3100"
     networks:
       gantry:
         aliases:
@@ -500,8 +455,8 @@ services:
 
   # --------------------------------------------------------------
   # OpenTelemetry Collector  (profile: observability)
-  # OTLP gRPC: otelcol:4317  (host: localhost:14317)
-  # OTLP HTTP: otelcol:4318  (host: localhost:14318)
+  # OTLP gRPC: otelcol:4317 (also localhost:14317 outside Codespaces)
+  # OTLP HTTP: otelcol:4318 (also localhost:14318 outside Codespaces)
   # Exports: traces → Jaeger, metrics → Prometheus, logs → Loki
   # --------------------------------------------------------------
   otelcol:
@@ -511,9 +466,6 @@ services:
     command: ["--config=/etc/otelcol/config.yml"]
     volumes:
       - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/otelcol/config.yml:/etc/otelcol/config.yml:ro
-    ports:
-      - "14317:4317"
-      - "14318:4318"
     depends_on:
       - jaeger
       - loki
@@ -534,9 +486,6 @@ services:
     restart: unless-stopped
     volumes:
       - qdrant-data:/qdrant/storage
-    ports:
-      - "6333:6333"
-      - "6334:6334"
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:6333/readyz || exit 1"]
       interval: 5s
@@ -562,8 +511,6 @@ services:
       MEILI_NO_ANALYTICS: "true"
     volumes:
       - meilisearch-data:/meili_data
-    ports:
-      - "7700:7700"
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:7700/health || exit 1"]
       interval: 5s
@@ -586,9 +533,6 @@ services:
     command: ["--jetstream", "--store_dir=/data", "--http_port=8222"]
     volumes:
       - nats-data:/data
-    ports:
-      - "4222:4222"
-      - "8222:8222"
     networks:
       gantry:
         aliases:
@@ -612,8 +556,6 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: "false"
     volumes:
       - keycloak-data:/opt/keycloak/data
-    ports:
-      - "8180:8180"
     networks:
       gantry:
         aliases:

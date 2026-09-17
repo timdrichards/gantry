@@ -11,7 +11,8 @@ A VS Code dev container configuration template for web development projects. The
 ```
 .devcontainer/
 ├── devcontainer.json          # VS Code spec: mounts, extensions, settings, lifecycle hooks
-├── compose.yml         # Primary container + all optional sidecar services
+├── compose.yml         # Primary container + all optional sidecar services — no ports: on sidecars, see below
+├── compose.local-ports.yml    # Adds sidecar host ports back; only loaded outside Codespaces (see `dc` function)
 ├── Dockerfile                 # Image build for the devcontainer service
 ├── shell/.bashrc_devcontainer # Aliases/functions sourced in every container bash session
 ├── scripts/post-create.sh     # Runs once after image build
@@ -152,7 +153,7 @@ plugin-name/
 
 **`rpk [args...]`** — runs the Redpanda `rpk` CLI inside the redpanda container. Example: `rpk topic list`.
 
-**`dc`** — wraps `docker compose` with the correct compose file path and project name. Project name is derived from `basename` of `LOCAL_WORKSPACE_FOLDER` after normalizing Windows backslashes with `tr "\\\\" "/"`.
+**`dc`** — wraps `docker compose` with the correct compose file path(s) and project name. Project name is derived from `basename` of `LOCAL_WORKSPACE_FOLDER` after normalizing Windows backslashes with `tr "\\\\" "/"`. Outside Codespaces (`$CODESPACES` unset), it also layers in `compose.local-ports.yml` so sidecars publish host ports; inside Codespaces it doesn't, since Codespaces' own port-forwarding agent pre-claims every port declared in any compose file it can see, which collides with a sidecar trying to publish that same port itself (`dc-up <service>` fails with "address already in use" otherwise — this bit us in production, see git history around the `compose.local-ports.yml` addition). `compose.yml` itself has no `ports:` on any sidecar for this reason; every service is always reachable via its `gantry` network hostname regardless of environment.
 
 ## Cross-Platform Constraints
 

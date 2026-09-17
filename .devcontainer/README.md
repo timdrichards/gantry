@@ -559,7 +559,7 @@ Edit `services/prometheus/prometheus.yml`. Add a new `scrape_configs` entry poin
     - targets: ["devcontainer:9091"]
 ```
 
-Prometheus picks up config changes on a hot reload (`curl -X POST http://localhost:9090/-/reload`) or a container restart.
+Prometheus picks up config changes on a hot reload — from inside the devcontainer terminal, run `curl -X POST http://prometheus:9090/-/reload` — or a container restart.
 
 ### Customising Caddy
 

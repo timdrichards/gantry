@@ -1,0 +1,100 @@
+# ================================================================
+# Local-only port publishing overlay
+#
+# Adds host port mappings for every sidecar so they're reachable at
+# localhost:<port> from a browser or a native GUI tool on your machine.
+#
+# This file is NOT used in Codespaces. Codespaces' own port-forwarding
+# agent proactively claims every port declared in any compose file it
+# can see, the moment the devcontainer starts — before a sidecar ever
+# gets a chance to publish that same port itself, which makes `dc-up
+# <service>` fail with "address already in use". The `dc` function in
+# shell/.bashrc_devcontainer only adds this file outside Codespaces
+# (checked via the $CODESPACES env var), so compose.yml itself has no
+# ports: at all — every service stays reachable via its hostname on
+# the gantry network regardless of which environment you're in.
+# ================================================================
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+  mongo:
+    ports:
+      - "27017:27017"
+  redis:
+    ports:
+      - "6379:6379"
+  mysql:
+    ports:
+      - "3306:3306"
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  elasticsearch:
+    ports:
+      - "9200:9200"
+  memcached:
+    ports:
+      - "11211:11211"
+  mailpit:
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+  minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+  redpanda:
+    ports:
+      - "9092:9092"
+      - "8081:8081"
+      - "8082:8082"
+      - "9644:9644"
+  redpanda-console:
+    ports:
+      - "9080:8080"
+  prometheus:
+    ports:
+      - "9090:9090"
+  grafana:
+    ports:
+      - "3030:3030"
+  jaeger:
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+  caddy:
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+  adminer:
+    ports:
+      - "8888:8080"
+  loki:
+    ports:
+      - "3100:3100"
+  otelcol:
+    ports:
+      - "14317:4317"
+      - "14318:4318"
+  qdrant:
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+  meilisearch:
+    ports:
+      - "7700:7700"
+  nats:
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+  keycloak:
+    ports:
+      - "8180:8180"

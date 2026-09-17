@@ -21,7 +21,18 @@ shopt -s histappend
 
 # ---- Convenience aliases — Docker / Compose --------------------
 alias d='docker'
-alias dc='docker compose -f /gantry/.devcontainer/compose.yml --project-name "$(basename "$(echo "${LOCAL_WORKSPACE_FOLDER}" | tr "\\\\" "/")")_devcontainer"'
+# In Codespaces, skip the local host-port overlay entirely — Codespaces'
+# own port-forwarding agent claims every port declared in any compose file
+# it can see before a sidecar gets to publish it itself, which makes
+# `dc-up <service>` fail with "address already in use". See
+# compose.local-ports.yml for the full explanation.
+dc() {
+  local -a files=(-f /gantry/.devcontainer/compose.yml)
+  [[ -z "${CODESPACES:-}" ]] && files+=(-f /gantry/.devcontainer/compose.local-ports.yml)
+  local project
+  project="$(basename "$(echo "${LOCAL_WORKSPACE_FOLDER}" | tr '\\' '/')")_devcontainer"
+  docker compose "${files[@]}" --project-name "$project" "$@"
+}
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
 alias dlog='docker logs -f'
 alias dex='docker exec -it'

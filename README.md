@@ -455,7 +455,7 @@ A `.env.example` file in the root of the project has ready-to-use connection str
 
 ## Ports You Can Access from Your Browser
 
-Your browser on your laptop can reach these ports directly (VS Code forwards them automatically):
+Your browser on your laptop can reach these ports directly (VS Code forwards them automatically). **This only applies when running locally with Docker Desktop.** In GitHub Codespaces, these sidecar services aren't published to a host port at all (Codespaces' own port-forwarding would collide with them) — reach them from code running inside the devcontainer using the service hostname instead (e.g. `http://grafana:3030`, not `localhost:3030`). Your own app (3000, 5173) still forwards normally in Codespaces either way.
 
 | Port  | Service / What to open                             |
 |-------|----------------------------------------------------|
