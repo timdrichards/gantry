@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 460" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .card { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+    .num { fill: #1a7f37; }
+    .numtext { fill: #ffffff; font-weight: 700; }
+    .title { fill: #1f2328; font-weight: 700; }
+    .step { fill: #1f2328; font-weight: 600; }
+    .desc { fill: #57606a; }
+    .arrow { stroke: #57606a; stroke-width: 2; fill: none; marker-end: url(#head2); }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .card { fill: #161b22; stroke: #30363d; }
+      .num { fill: #3fb950; }
+      .title { fill: #e6edf3; }
+      .step { fill: #e6edf3; }
+      .desc { fill: #8b949e; }
+      .arrow { stroke: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="head2" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="980" height="460"/>
+  <text x="490" y="34" text-anchor="middle" class="title" font-size="22">Setting up on your own computer</text>
+
+  <!-- Row 1 -->
+  <g>
+    <rect class="card" x="30" y="60" width="270" height="150" rx="10"/>
+    <circle class="num" cx="62" cy="90" r="16"/>
+    <text x="62" y="96" text-anchor="middle" class="numtext" font-size="16">1</text>
+    <text x="90" y="96" class="step" font-size="15">Install Docker Desktop</text>
+    <text x="50" y="130" class="desc" font-size="12">Free app that runs the</text>
+    <text x="50" y="148" class="desc" font-size="12">environment on your</text>
+    <text x="50" y="166" class="desc" font-size="12">computer. One-time install,</text>
+    <text x="50" y="184" class="desc" font-size="12">then open it and leave it running.</text>
+  </g>
+
+  <path class="arrow" d="M300 135 L350 135"/>
+
+  <g>
+    <rect class="card" x="355" y="60" width="270" height="150" rx="10"/>
+    <circle class="num" cx="387" cy="90" r="16"/>
+    <text x="387" y="96" text-anchor="middle" class="numtext" font-size="16">2</text>
+    <text x="415" y="96" class="step" font-size="15">Install VS Code</text>
+    <text x="375" y="130" class="desc" font-size="12">The free code editor you'll</text>
+    <text x="375" y="148" class="desc" font-size="12">write and run everything in.</text>
+    <text x="375" y="166" class="desc" font-size="12">Also a one-time install.</text>
+  </g>
+
+  <path class="arrow" d="M625 135 L675 135"/>
+
+  <g>
+    <rect class="card" x="680" y="60" width="270" height="150" rx="10"/>
+    <circle class="num" cx="712" cy="90" r="16"/>
+    <text x="712" y="96" text-anchor="middle" class="numtext" font-size="16">3</text>
+    <text x="740" y="96" class="step" font-size="15">Add one VS Code extension</text>
+    <text x="700" y="130" class="desc" font-size="12">In VS Code, search</text>
+    <text x="700" y="148" class="desc" font-size="12">Extensions for "Dev</text>
+    <text x="700" y="166" class="desc" font-size="12">Containers" and click</text>
+    <text x="700" y="184" class="desc" font-size="12">Install. Also one-time.</text>
+  </g>
+
+  <!-- wrap arrow from step 3 to step 4 -->
+  <path class="arrow" d="M815 210 C815 250, 190 250, 190 288"/>
+
+  <!-- Row 2 -->
+  <g>
+    <rect class="card" x="30" y="295" width="270" height="150" rx="10"/>
+    <circle class="num" cx="62" cy="325" r="16"/>
+    <text x="62" y="331" text-anchor="middle" class="numtext" font-size="16">4</text>
+    <text x="90" y="331" class="step" font-size="15">Get your own copy</text>
+    <text x="50" y="365" class="desc" font-size="12">Click "Use this template" on</text>
+    <text x="50" y="383" class="desc" font-size="12">GitHub, then download or</text>
+    <text x="50" y="401" class="desc" font-size="12">"clone" (copy) it onto your</text>
+    <text x="50" y="419" class="desc" font-size="12">computer — instructions below.</text>
+  </g>
+
+  <path class="arrow" d="M300 370 L350 370"/>
+
+  <g>
+    <rect class="card" x="355" y="295" width="270" height="150" rx="10"/>
+    <circle class="num" cx="387" cy="325" r="16"/>
+    <text x="387" y="331" text-anchor="middle" class="numtext" font-size="16">5</text>
+    <text x="415" y="331" class="step" font-size="15">Open the folder in VS Code</text>
+    <text x="375" y="365" class="desc" font-size="12">A popup appears in the</text>
+    <text x="375" y="383" class="desc" font-size="12">corner — click "Reopen in</text>
+    <text x="375" y="401" class="desc" font-size="12">Container."</text>
+  </g>
+
+  <path class="arrow" d="M625 370 L675 370"/>
+
+  <g>
+    <rect class="card" x="680" y="295" width="270" height="150" rx="10"/>
+    <circle class="num" cx="712" cy="325" r="16"/>
+    <text x="712" y="331" text-anchor="middle" class="numtext" font-size="16">6</text>
+    <text x="740" y="331" class="step" font-size="15">Wait, then you're in!</text>
+    <text x="700" y="365" class="desc" font-size="12">The first build takes a few</text>
+    <text x="700" y="383" class="desc" font-size="12">minutes. After that, opening</text>
+    <text x="700" y="401" class="desc" font-size="12">the folder again is instant.</text>
+  </g>
+</svg>

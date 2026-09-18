@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .card { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+    .youcard { fill: #ddf4ff; stroke: #54aeff; stroke-width: 1.5; }
+    .title { fill: #1f2328; font-weight: 700; }
+    .step { fill: #1f2328; font-weight: 700; }
+    .desc { fill: #57606a; }
+    .label { fill: #57606a; font-weight: 600; }
+    .arrow { stroke: #57606a; stroke-width: 2; fill: none; marker-end: url(#head4); }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .card { fill: #161b22; stroke: #30363d; }
+      .youcard { fill: #0c2d6b; stroke: #58a6ff; }
+      .title { fill: #e6edf3; }
+      .step { fill: #e6edf3; }
+      .desc { fill: #8b949e; }
+      .label { fill: #8b949e; }
+      .arrow { stroke: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="head4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="900" height="300"/>
+  <text x="450" y="34" text-anchor="middle" class="title" font-size="22">Where updates come from</text>
+
+  <!-- Box 1: Instructor -->
+  <rect class="card" x="30" y="90" width="220" height="120" rx="10"/>
+  <text x="140" y="125" text-anchor="middle" class="step" font-size="15">Instructor fixes</text>
+  <text x="140" y="145" text-anchor="middle" class="step" font-size="15">or improves something</text>
+  <text x="140" y="175" text-anchor="middle" class="desc" font-size="12">This happens on the</text>
+  <text x="140" y="192" text-anchor="middle" class="desc" font-size="12">instructor's own copy.</text>
+
+  <path class="arrow" d="M255 150 L340 150"/>
+  <text x="297" y="130" text-anchor="middle" class="label" font-size="11">automatic</text>
+  <text x="297" y="200" text-anchor="middle" class="desc" font-size="10">happens on</text>
+  <text x="297" y="212" text-anchor="middle" class="desc" font-size="10">its own</text>
+
+  <!-- Box 2: Shared template -->
+  <rect class="card" x="345" y="90" width="220" height="120" rx="10"/>
+  <text x="455" y="125" text-anchor="middle" class="step" font-size="15">The shared class</text>
+  <text x="455" y="145" text-anchor="middle" class="step" font-size="15">template updates</text>
+  <text x="455" y="175" text-anchor="middle" class="desc" font-size="12">This is the "cargo" repo —</text>
+  <text x="455" y="192" text-anchor="middle" class="desc" font-size="12">usually within a minute.</text>
+
+  <path class="arrow" d="M570 150 L655 150"/>
+  <text x="612" y="130" text-anchor="middle" class="label" font-size="11">your choice</text>
+  <text x="612" y="200" text-anchor="middle" class="desc" font-size="10">when you're</text>
+  <text x="612" y="212" text-anchor="middle" class="desc" font-size="10">ready</text>
+
+  <!-- Box 3: Your copy -->
+  <rect class="youcard" x="660" y="90" width="215" height="120" rx="10"/>
+  <text x="767" y="125" text-anchor="middle" class="step" font-size="15">Your copy</text>
+  <text x="767" y="145" text-anchor="middle" class="step" font-size="15">stays the same</text>
+  <text x="767" y="175" text-anchor="middle" class="desc" font-size="12">...until you decide to</text>
+  <text x="767" y="192" text-anchor="middle" class="desc" font-size="12">pull the update in.</text>
+
+  <text x="450" y="260" text-anchor="middle" class="desc" font-size="13">Nothing changes in your copy automatically — you're always in control of when you update.</text>
+</svg>

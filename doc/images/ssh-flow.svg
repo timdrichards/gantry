@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 260" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .card { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+    .code { fill: #24292f; }
+    .codetext { fill: #7ee787; font-family: 'SFMono-Regular', Consolas, monospace; }
+    .num { fill: #8250df; }
+    .numtext { fill: #ffffff; font-weight: 700; }
+    .title { fill: #1f2328; font-weight: 700; }
+    .step { fill: #1f2328; font-weight: 600; }
+    .desc { fill: #57606a; }
+    .arrow { stroke: #57606a; stroke-width: 2; fill: none; marker-end: url(#head3); }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .card { fill: #161b22; stroke: #30363d; }
+      .num { fill: #a371f7; }
+      .title { fill: #e6edf3; }
+      .step { fill: #e6edf3; }
+      .desc { fill: #8b949e; }
+      .arrow { stroke: #8b949e; }
+    }
+  </style>
+  <defs>
+    <marker id="head3" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="980" height="260"/>
+  <text x="490" y="34" text-anchor="middle" class="title" font-size="22">Connecting with the command line</text>
+
+  <g>
+    <rect class="card" x="20" y="60" width="220" height="180" rx="10"/>
+    <circle class="num" cx="50" cy="88" r="15"/>
+    <text x="50" y="93" text-anchor="middle" class="numtext" font-size="15">1</text>
+    <text x="75" y="93" class="step" font-size="14">Install GitHub CLI</text>
+    <text x="35" y="120" class="desc" font-size="11">A tool called "gh" that lets</text>
+    <text x="35" y="136" class="desc" font-size="11">your terminal talk to GitHub.</text>
+    <text x="35" y="152" class="desc" font-size="11">One-time install.</text>
+  </g>
+
+  <path class="arrow" d="M240 150 L260 150"/>
+
+  <g>
+    <rect class="card" x="265" y="60" width="220" height="180" rx="10"/>
+    <circle class="num" cx="295" cy="88" r="15"/>
+    <text x="295" y="93" text-anchor="middle" class="numtext" font-size="15">2</text>
+    <text x="320" y="93" class="step" font-size="14">Sign in</text>
+    <rect class="code" x="280" y="112" width="190" height="26" rx="4"/>
+    <text x="288" y="129" class="codetext" font-size="11">gh auth login</text>
+    <text x="280" y="158" class="desc" font-size="11">Type this and follow the</text>
+    <text x="280" y="174" class="desc" font-size="11">prompts. One-time.</text>
+  </g>
+
+  <path class="arrow" d="M485 150 L505 150"/>
+
+  <g>
+    <rect class="card" x="510" y="60" width="230" height="180" rx="10"/>
+    <circle class="num" cx="540" cy="88" r="15"/>
+    <text x="540" y="93" text-anchor="middle" class="numtext" font-size="15">3</text>
+    <text x="565" y="93" class="step" font-size="14">Create a codespace</text>
+    <rect class="code" x="525" y="112" width="200" height="40" rx="4"/>
+    <text x="533" y="127" class="codetext" font-size="10">gh codespace create \</text>
+    <text x="533" y="143" class="codetext" font-size="10">--repo you/cargo</text>
+    <text x="525" y="172" class="desc" font-size="11">Replace "you" with your</text>
+    <text x="525" y="188" class="desc" font-size="11">own GitHub username.</text>
+  </g>
+
+  <path class="arrow" d="M740 150 L760 150"/>
+
+  <g>
+    <rect class="card" x="765" y="60" width="200" height="180" rx="10"/>
+    <circle class="num" cx="795" cy="88" r="15"/>
+    <text x="795" y="93" text-anchor="middle" class="numtext" font-size="15">4</text>
+    <text x="818" y="93" class="step" font-size="14">Connect</text>
+    <rect class="code" x="780" y="112" width="170" height="26" rx="4"/>
+    <text x="788" y="129" class="codetext" font-size="11">gh codespace ssh</text>
+    <text x="780" y="158" class="desc" font-size="11">You're now typing</text>
+    <text x="780" y="174" class="desc" font-size="11">commands directly inside</text>
+    <text x="780" y="190" class="desc" font-size="11">your environment.</text>
+  </g>
+</svg>

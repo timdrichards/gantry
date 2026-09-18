@@ -1,17 +1,11 @@
-# Gantry Documentation
+# Documentation
 
-Student-facing documentation for using this dev container: installation,
-day-to-day workflow, and troubleshooting.
+More detail on specific topics, beyond what's in the main
+[README](../README.md).
 
-This is a placeholder — most content is still being written. In the
-meantime, see the [top-level README](../README.md) for setup instructions.
+- [Getting updates](UPDATING.md) — how to pull in changes from the course template
 
-- [Getting updates](updating.md) — how to pull in changes from the course template
-
-Planned pages:
-
-- Installation (Docker Desktop, VS Code, Dev Containers extension)
-- Day-one walkthrough
-- Working with your own repos in `work/`
-- Common howtos (starting services, running `gh auth login`, etc.)
-- Troubleshooting
+More pages will be added here over time (troubleshooting, common howtos,
+and similar). If you're just getting started, the [main README](../README.md)
+is the right place to begin — it covers installation and how to open the
+environment for the first time.

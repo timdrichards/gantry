@@ -49,15 +49,24 @@ to get their own independent copy — there is no git relationship back to
   `gantry`'s `main`. It calls `.github/scripts/stage-cargo.sh` to build the
   filtered file set (same logic the release skill's zip staging uses:
   `.devcontainer/` minus `.devcontainer/docs/`, plus `doc/`, `.env.example`,
-  `README.md`, `.gitignore`, `.gitattributes`, `work/README.md`), then
-  commits and pushes that into `cargo`'s `main` if anything changed. This
-  needs a `CARGO_SYNC_TOKEN` repo secret (a fine-grained PAT scoped to
+  `.gitignore`, `.gitattributes`, `work/README.md`), then commits and
+  pushes that into `cargo`'s `main` if anything changed. This needs a
+  `CARGO_SYNC_TOKEN` repo secret (a fine-grained PAT scoped to
   `Contents: Read and write` on `timdrichards/cargo` only) — without it the
   sync job fails at the `cargo` checkout step.
-- **Local-hook pattern**: `cargo` needs two things `gantry` doesn't —
+- **Cargo-owned content, never touched by the sync**: `cargo`'s root
+  `README.md` is written directly for `cargo` (student-facing, assumes zero
+  terminal experience) and is deliberately excluded from
+  `stage-cargo.sh` — it's not even copied, let alone overwritten. This is
+  the same idea as gantry's own root `README.md` being instructor-facing:
+  two different audiences need two different files at the same path in two
+  different repos. Edit `cargo`'s `README.md` directly in `cargo` (or push
+  to it the way the initial population was done); a change to `gantry`'s
+  `README.md` never reaches it.
+- **Local-hook pattern**: `cargo` also needs two things `gantry` doesn't —
   wiring an `upstream` git remote back to `timdrichards/cargo`, and a
   throttled "updates available" check on container start (see
-  `doc/updating.md`). Since the sync overwrites `.devcontainer/` wholesale,
+  `doc/UPDATING.md`). Since the sync overwrites `.devcontainer/` wholesale,
   those can't live directly in `post-create.sh`/`post-start.sh`. Instead
   those two scripts each end with a no-op-in-gantry hook:
   ```bash
@@ -67,11 +76,15 @@ to get their own independent copy — there is no git relationship back to
   `post-start.local.sh` files. `stage-cargo.sh` explicitly excludes those
   two paths from its `rsync --delete`, so they survive every sync
   untouched. If you ever need `cargo` to diverge from `gantry` in some
-  other file, this is the pattern to extend rather than hand-editing
-  `cargo` directly (any such edit is silently overwritten on the next push
-  to `gantry`'s `main`).
-- **`doc/updating.md`** documents the student-facing update procedure
-  (`git fetch upstream && git merge upstream/main`, then rebuild).
+  other file, this (or the README.md exclusion above) is the pattern to
+  extend rather than hand-editing `cargo` directly (any such edit is
+  silently overwritten on the next push to `gantry`'s `main`, unless it's
+  excluded the same way).
+- **`doc/UPDATING.md`** documents the student-facing update procedure
+  (`git fetch upstream && git merge upstream/main`, then rebuild). Authored
+  in `gantry`'s `doc/` and flows through the normal sync — unlike
+  `README.md`, there's no competing gantry-facing content at that path, so
+  it doesn't need the "cargo-owned" treatment.
 
 ## When a Container Rebuild Is Required
 

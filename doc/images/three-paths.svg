@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .card { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+    .merge { fill: #ddf4ff; stroke: #54aeff; stroke-width: 1.5; }
+    .title { fill: #1f2328; font-weight: 700; }
+    .sub { fill: #1f2328; font-weight: 600; }
+    .desc { fill: #57606a; }
+    .arrow { stroke: #57606a; stroke-width: 2; fill: none; }
+    .arrowhead { fill: #57606a; }
+    .icon-fill { fill: #ffffff; stroke: #57606a; stroke-width: 2; }
+    .icon-accent { fill: #57606a; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .card { fill: #161b22; stroke: #30363d; }
+      .merge { fill: #0c2d6b; stroke: #58a6ff; }
+      .title { fill: #e6edf3; }
+      .sub { fill: #e6edf3; }
+      .desc { fill: #8b949e; }
+      .arrow { stroke: #8b949e; }
+      .arrowhead { fill: #8b949e; }
+      .icon-fill { fill: #161b22; stroke: #8b949e; }
+      .icon-accent { fill: #8b949e; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="960" height="480"/>
+
+  <text x="480" y="38" text-anchor="middle" class="title" font-size="24">Three ways to get started</text>
+  <text x="480" y="62" text-anchor="middle" class="desc" font-size="14">Pick whichever fits how you like to work — they all end up in the same place.</text>
+
+  <!-- Card 1: Browser -->
+  <rect class="card" x="30" y="90" width="270" height="230" rx="12"/>
+  <g transform="translate(140,115)">
+    <rect class="icon-fill" x="0" y="0" width="50" height="38" rx="4"/>
+    <rect class="icon-accent" x="0" y="0" width="50" height="9" rx="4"/>
+    <circle class="icon-fill" cx="6" cy="4.5" r="1.6"/>
+    <circle class="icon-fill" cx="12" cy="4.5" r="1.6"/>
+    <circle class="icon-fill" cx="18" cy="4.5" r="1.6"/>
+  </g>
+  <text x="165" y="178" text-anchor="middle" class="sub" font-size="17">In your web browser</text>
+  <text x="165" y="200" text-anchor="middle" class="desc" font-size="13">GitHub Codespaces</text>
+  <text x="55" y="228" class="desc" font-size="12">• Nothing to install</text>
+  <text x="55" y="248" class="desc" font-size="12">• Works on any computer</text>
+  <text x="55" y="268" class="desc" font-size="12">• Best if you're just starting out</text>
+  <text x="55" y="295" class="desc" font-size="12" font-style="italic">Recommended for most people</text>
+
+  <!-- Card 2: Computer -->
+  <rect class="card" x="345" y="90" width="270" height="230" rx="12"/>
+  <g transform="translate(450,112)">
+    <path class="icon-fill" d="M4 0 H46 V32 H4 Z"/>
+    <path class="icon-fill" d="M-4 32 H54 L48 42 H-2 Z"/>
+    <rect class="icon-accent" x="20" y="36" width="10" height="3"/>
+  </g>
+  <text x="480" y="178" text-anchor="middle" class="sub" font-size="17">On your own computer</text>
+  <text x="480" y="200" text-anchor="middle" class="desc" font-size="13">Docker Desktop + VS Code</text>
+  <text x="370" y="228" class="desc" font-size="12">• A one-time setup of two apps</text>
+  <text x="370" y="248" class="desc" font-size="12">• Everything runs on your machine</text>
+  <text x="370" y="268" class="desc" font-size="12">• Works without internet after setup</text>
+
+  <!-- Card 3: Terminal -->
+  <rect class="card" x="660" y="90" width="270" height="230" rx="12"/>
+  <g transform="translate(760,112)">
+    <rect class="icon-fill" x="0" y="0" width="50" height="36" rx="4"/>
+    <text x="7" y="24" font-family="monospace" font-size="16" class="icon-accent">&gt;_</text>
+  </g>
+  <text x="795" y="178" text-anchor="middle" class="sub" font-size="17">Using the command line</text>
+  <text x="795" y="200" text-anchor="middle" class="desc" font-size="13">GitHub CLI + SSH</text>
+  <text x="685" y="228" class="desc" font-size="12">• Text-only, no visual editor window</text>
+  <text x="685" y="248" class="desc" font-size="12">• For people already comfortable</text>
+  <text x="685" y="266" class="desc" font-size="12">  typing commands</text>
+
+  <!-- Arrows down to merge box -->
+  <path class="arrow" d="M165 320 L165 360 L480 360 L480 390"/>
+  <path class="arrow" d="M480 320 L480 390"/>
+  <path class="arrow" d="M795 320 L795 360 L480 360 L480 390"/>
+  <polygon class="arrowhead" points="480,398 474,388 486,388"/>
+
+  <rect class="merge" x="280" y="404" width="400" height="56" rx="10"/>
+  <text x="480" y="438" text-anchor="middle" class="sub" font-size="16">Your ready-to-code environment</text>
+</svg>

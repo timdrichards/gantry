@@ -27,7 +27,10 @@ rsync -a --delete \
 rsync -a --delete "$SRC/doc/" "$DEST/doc/"
 
 cp "$SRC/.env.example" "$DEST/.env.example"
-cp "$SRC/README.md" "$DEST/README.md"
+# README.md is NOT copied — cargo owns its own root README.md (student-
+# facing, written directly for cargo) same as gantry's own README.md is
+# instructor-facing. Same reasoning as the post-*.local.sh hooks: this
+# path is deliberately never touched by the sync.
 cp "$SRC/.gitignore" "$DEST/.gitignore"
 cp "$SRC/.gitattributes" "$DEST/.gitattributes"
 
