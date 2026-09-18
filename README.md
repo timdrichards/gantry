@@ -581,11 +581,16 @@ about your existing databases or plugins was touched.
 
 ## Maintainers: Cutting a Release
 
-Releases are dated GitHub releases (tag format `vMM-DD-YYYY`) whose asset is
-a distribution zip containing only the parts a template consumer needs:
-`.devcontainer/` (minus the developer-only `.devcontainer/docs/`), `doc/`,
-`work/README.md`, `.env.example`, and `README.md`. There is no CI
-automation — every release is cut by hand (or with Claude's help).
+Releases are dated GitHub releases (tag format `vMM-DD-YYYY`) cut on
+**`timdrichards/cargo`** — the public student repo — not on `gantry`.
+`sync-cargo.yml` already keeps `cargo`'s `main` continuously up to date
+with every push here, so a release is just a deliberate, dated,
+zip-downloadable checkpoint on top of that for students who'd rather
+download a zip than use git. Since `cargo`'s tree is already the exact
+student-facing content (the sync already stripped `CLAUDE.md`, `.claude/`,
+`.devcontainer/docs/`, etc.), there's no filtering step — the zip is just
+`cargo`'s checkout as-is. There is no CI automation — every release is cut
+by hand (or with Claude's help).
 
 ### Using Claude Code
 
@@ -596,36 +601,35 @@ Claude will follow.
 
 ### Doing it manually
 
-1. Make sure `main` is clean and has everything you want to ship, then tag
-   it with today's date:
+1. Confirm `cargo`'s `main` is caught up with the latest push to `gantry`
+   (check the latest `sync-cargo.yml` run succeeded), then clone it fresh:
 
    ```bash
-   git tag -a vMM-DD-YYYY -m "gantry vMM-DD-YYYY"
+   CHECKOUT=$(mktemp -d)
+   git clone --depth 1 https://github.com/timdrichards/cargo.git "$CHECKOUT"
+   ```
+
+2. Tag and push, on `cargo`:
+
+   ```bash
+   cd "$CHECKOUT"
+   git tag -a vMM-DD-YYYY -m "cargo vMM-DD-YYYY"
    git push origin vMM-DD-YYYY
    ```
 
-2. Stage only the distributable files into a temp directory and zip them —
-   **not** a full repo archive. Do not include `.devcontainer/docs/`,
-   `CLAUDE.md`, `.vscode/`, `.claude/`, or other repo-meta files:
+3. Zip the checkout (no filtering needed — it's already correct):
 
    ```bash
-   STAGE=$(mktemp -d)
-   cp -R .devcontainer "$STAGE/"
-   rm -rf "$STAGE/.devcontainer/docs"
-   cp -R doc "$STAGE/"
-   mkdir -p "$STAGE/work"
-   cp work/README.md "$STAGE/work/README.md"
-   cp .env.example "$STAGE/"
-   cp README.md "$STAGE/"
-   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer doc work .env.example README.md
+   rm -rf .git
+   zip -r -X /tmp/cargo-vMM-DD-YYYY.zip .
    ```
 
-3. Publish it:
+4. Publish it:
 
    ```bash
-   gh release create vMM-DD-YYYY /tmp/gantry-vMM-DD-YYYY.zip \
-     --repo timdrichards/gantry \
-     --title "gantry vMM-DD-YYYY" \
+   gh release create vMM-DD-YYYY /tmp/cargo-vMM-DD-YYYY.zip \
+     --repo timdrichards/cargo \
+     --title "cargo vMM-DD-YYYY" \
      --notes "Distribution release vMM-DD-YYYY."
    ```
 
@@ -633,8 +637,8 @@ If a tag for today already exists and you want to replace it rather than
 stack a second release:
 
 ```bash
-gh release delete vMM-DD-YYYY --repo timdrichards/gantry --cleanup-tag --yes
-git tag -a vMM-DD-YYYY -m "gantry vMM-DD-YYYY" <new-commit-sha>
+gh release delete vMM-DD-YYYY --repo timdrichards/cargo --cleanup-tag --yes
+git tag -a vMM-DD-YYYY -m "cargo vMM-DD-YYYY" <new-commit-sha>
 git push origin vMM-DD-YYYY
 ```
 

@@ -220,6 +220,45 @@ alias gp='git push'
 alias gl='git log --oneline --graph --decorate -20'
 alias gd='git diff'
 
+# ---- cargo-update: pull in template updates in one step ---------
+# A no-op outside a cargo-based repo (no 'upstream' remote configured).
+cargo-update() {
+  if ! git -C /gantry remote get-url upstream &>/dev/null; then
+    echo "No 'upstream' remote is configured — there's nothing to update from here." >&2
+    return 1
+  fi
+
+  echo "Checking for updates..."
+  if ! git -C /gantry fetch upstream --quiet; then
+    echo "Couldn't reach the course template (check your network) — try again in a bit." >&2
+    return 1
+  fi
+
+  local behind
+  behind=$(git -C /gantry rev-list --count HEAD..upstream/main 2>/dev/null || echo 0)
+  if [[ "$behind" -eq 0 ]]; then
+    echo "You're already up to date — nothing to do."
+    return 0
+  fi
+
+  echo "Found ${behind} update(s). Applying them..."
+  if git -C /gantry merge upstream/main --no-edit; then
+    echo ""
+    echo "✅ Updated successfully."
+    echo ""
+    echo "If a 'Rebuild Container?' popup appears in the bottom-right corner"
+    echo "of VS Code, click it to finish applying the update. If it doesn't"
+    echo "appear but you think you need it, open the Command Palette"
+    echo "(Cmd/Ctrl+Shift+P) and run 'Dev Containers: Rebuild Container'."
+  else
+    echo ""
+    echo "⚠️  There's a merge conflict — git needs a person to decide which"
+    echo "   version of a file to keep. This isn't something you broke."
+    echo "   Ask your instructor or a TA if you're not sure how to resolve it."
+    return 1
+  fi
+}
+
 # ---- Path additions --------------------------------------------
 export PATH="$PATH:/gantry/node_modules/.bin"
 export PATH="$HOME/.local/bin:$PATH"

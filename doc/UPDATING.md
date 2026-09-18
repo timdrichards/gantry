@@ -20,28 +20,13 @@ terminal if something new is available:
 
 ```
 📦 2 update(s) available from the course template.
-   Run 'git merge upstream/main' to pick them up, then Rebuild Container.
+   Run 'cargo-update' to pick them up.
 ```
 
 If you don't see this message, you're already up to date. (It only checks
 about once every 6 hours, so if you *just* got an update from your
 instructor, it might not show up in the terminal message immediately —
 that's fine, it'll catch up.)
-
-## What "update" actually means here
-
-Your copy of the course environment is a small project tracked by a tool
-called **git**. Git keeps a history of every change, a bit like a very
-thorough "Track Changes" in a word processor. An "update" is just: git
-copies over the new changes from the instructor's version into yours.
-
-Two words that will help this make sense:
-
-- **`origin`** — the name git uses for *your* copy, the one you're
-  currently working in.
-- **`upstream`** — the name git uses for the *instructor's* shared
-  version, the one updates come from. This is already set up for you —
-  you don't need to add it yourself.
 
 ## Getting an update, step by step
 
@@ -50,19 +35,33 @@ Two words that will help this make sense:
    Terminal**).
 2. Type this and press Enter:
    ```bash
-   git fetch upstream
+   cargo-update
    ```
-   This downloads the instructor's latest changes, but doesn't apply them
-   to your files yet. Think of it as "check what's new" without touching
-   anything.
-3. Type this and press Enter:
-   ```bash
-   git merge upstream/main
-   ```
-   This actually applies the changes to your copy.
+3. Read what it prints. It'll either say you're already up to date, tell
+   you it applied some updates successfully (and whether you need to
+   rebuild — more on that below), or let you know there's a conflict that
+   needs a person to sort out (see the next section).
 
-That's it. If nothing you've personally changed overlaps with what the
-instructor changed, this finishes instantly with no extra steps.
+That's it — one command. If nothing you've personally changed overlaps
+with what the instructor changed, this finishes in a couple of seconds
+with no extra steps.
+
+### What `cargo-update` is doing, if you're curious
+
+You never need to know this to use it, but in case you're curious: your
+copy of the course environment is tracked by a tool called **git**, which
+keeps a history of every change — a bit like a very thorough "Track
+Changes" in a word processor. `cargo-update` is just a shortcut for two
+ordinary git commands: `git fetch upstream` (download the instructor's
+latest changes, without applying them yet) followed by `git merge
+upstream/main` (actually apply them to your copy). Two words that will
+help this make sense if you ever see them elsewhere:
+
+- **`origin`** — the name git uses for *your* copy, the one you're
+  currently working in.
+- **`upstream`** — the name git uses for the *instructor's* shared
+  version, the one updates come from. This is already set up for you —
+  you don't need to add it yourself.
 
 ## If you see a "merge conflict"
 
