@@ -1,6 +1,6 @@
 ---
 name: release
-description: Cut a new dated GitHub release of this gantry devcontainer template — tags HEAD as vMM-DD-YYYY, builds a distribution zip containing only .devcontainer/ (minus .devcontainer/docs/), doc/, .env.example, and README.md, and publishes it via gh release create. Trigger when the user asks to "cut a release," "make/generate a new release," or references the gantry release procedure.
+description: Cut a new dated GitHub release of this gantry devcontainer template — tags HEAD as vMM-DD-YYYY, builds a distribution zip containing only .devcontainer/ (minus .devcontainer/docs/), doc/, work/README.md, .env.example, and README.md, and publishes it via gh release create. Trigger when the user asks to "cut a release," "make/generate a new release," or references the gantry release procedure.
 ---
 
 # Release
@@ -38,6 +38,8 @@ procedure run from a clean `main`.
 
    - `.devcontainer/` (minus `.devcontainer/docs/` — see below)
    - `doc/`
+   - `work/README.md` (not the rest of `work/` — that's gitignored scratch
+     space for the consumer's own repos, nothing to ship)
    - `.env.example`
    - `README.md`
 
@@ -54,10 +56,12 @@ procedure run from a clean `main`.
    cp -R .devcontainer "$STAGE/"
    rm -rf "$STAGE/.devcontainer/docs"
    cp -R doc "$STAGE/"
+   mkdir -p "$STAGE/work"
+   cp work/README.md "$STAGE/work/README.md"
    cp .env.example "$STAGE/"
    cp README.md "$STAGE/"
    find "$STAGE" -name ".DS_Store" -delete
-   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer doc .env.example README.md
+   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer doc work .env.example README.md
    ```
 
 3. **Publish the release**

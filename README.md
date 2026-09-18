@@ -584,8 +584,8 @@ about your existing databases or plugins was touched.
 Releases are dated GitHub releases (tag format `vMM-DD-YYYY`) whose asset is
 a distribution zip containing only the parts a template consumer needs:
 `.devcontainer/` (minus the developer-only `.devcontainer/docs/`), `doc/`,
-`.env.example`, and `README.md`. There is no CI automation — every release
-is cut by hand (or with Claude's help).
+`work/README.md`, `.env.example`, and `README.md`. There is no CI
+automation — every release is cut by hand (or with Claude's help).
 
 ### Using Claude Code
 
@@ -613,9 +613,11 @@ Claude will follow.
    cp -R .devcontainer "$STAGE/"
    rm -rf "$STAGE/.devcontainer/docs"
    cp -R doc "$STAGE/"
+   mkdir -p "$STAGE/work"
+   cp work/README.md "$STAGE/work/README.md"
    cp .env.example "$STAGE/"
    cp README.md "$STAGE/"
-   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer doc .env.example README.md
+   cd "$STAGE" && zip -r -X /tmp/gantry-vMM-DD-YYYY.zip .devcontainer doc work .env.example README.md
    ```
 
 3. Publish it:
