@@ -16,7 +16,7 @@ fi
 
 # 'upstream' points at the course template so cargo-update works.
 if ! git -C /gantry remote get-url upstream &>/dev/null; then
-  git -C /gantry remote add upstream https://github.com/timdrichards/cargo-326-fall-2026.git 2>/dev/null || true
+  git -C /gantry remote add upstream https://github.com/timdrichards/cargo.git 2>/dev/null || true
 fi
 
 if [[ ! -f /gantry/.bashrc.user ]]; then

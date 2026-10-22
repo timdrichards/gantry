@@ -3,7 +3,7 @@ name: Sync cargo-326 (326 student distribution)
 # Mirrors variants/326/ (see .github/scripts/stage-cargo-326.sh) into the
 # 326 student repo on every push to main that touches it. The target
 # repo is the CARGO_326_REPO repository variable, defaulting to
-# timdrichards/cargo-326-fall-2026. Uses CARGO_SYNC_TOKEN, which needs
+# timdrichards/cargo (326 only, from 2026-10-22). Uses CARGO_SYNC_TOKEN, which needs
 # Contents: Read and write on that repo.
 
 on:
@@ -21,7 +21,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      TARGET: ${{ vars.CARGO_326_REPO || 'timdrichards/cargo-326-fall-2026' }}
+      TARGET: ${{ vars.CARGO_326_REPO || 'timdrichards/cargo' }}
     steps:
       - name: Checkout gantry
         uses: actions/checkout@v4
