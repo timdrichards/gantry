@@ -1,0 +1,103 @@
+{
+  // ================================================================
+  // Gantry 326 — COMPSCI 326 Web Programming
+  //
+  // Uses the prebuilt image ghcr.io/timdrichards/gantry-326 (see
+  // compose.yml), which already has Node, git, gh, the Docker CLI and
+  // sshd baked in. Nothing is built when a Codespace opens; the only
+  // start-up work is pulling the image and installing the extensions
+  // below, which is why the list is short.
+  // ================================================================
+  "name": "326 Web Programming",
+  "dockerComposeFile": "compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/gantry",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "DigitalBrainstem.javascript-ejs-support",
+        "bradlc.vscode-tailwindcss",
+        "otovo-oss.htmx-tags",
+        "mongodb.mongodb-vscode",
+        "humao.rest-client",
+        "mhutchie.git-graph",
+        "usernamehw.errorlens",
+        "PKief.material-icon-theme",
+        "cktan21.cursor--themes"
+      ],
+      "settings": {
+        "workbench.colorTheme": "Cursor Dark Midnight",
+        "workbench.iconTheme": "material-icon-theme",
+        "workbench.colorCustomizations": {
+          "editor.selectionBackground": "#2B6CB099",
+          "editor.inactiveSelectionBackground": "#2B6CB055",
+          "terminal.selectionBackground": "#2B6CB099"
+        },
+
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.fontSize": 13,
+        "terminal.integrated.scrollback": 5000,
+
+        "editor.fontSize": 13,
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 80,
+        "editor.rulers": [80],
+        "editor.minimap.enabled": false,
+        "editor.linkedEditing": true,
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": false,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[ejs]": { "editor.formatOnSave": false },
+
+        "eslint.validate": ["javascript"],
+        "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
+
+        "emmet.includeLanguages": { "ejs": "html" },
+
+        "tailwindCSS.includeLanguages": { "ejs": "html" },
+
+        "git.autofetch": true,
+        "git.confirmSync": false,
+
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "files.exclude": {
+          "**/.git": true,
+          ".devcontainer": true
+        },
+        "search.exclude": { "**/node_modules": true },
+
+        "explorer.confirmDragAndDrop": false,
+
+        "rest-client.environmentVariables": {
+          "$shared": { "baseUrl": "http://localhost:3000" }
+        },
+
+        "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+        "errorLens.delay": 500
+      }
+    }
+  },
+
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "App (3000)", "onAutoForward": "notify" }
+  },
+
+  "postCreateCommand": "bash /gantry/.devcontainer/scripts/post-create.sh",
+  "postStartCommand": "bash /gantry/.devcontainer/scripts/post-start.sh",
+
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "remoteEnv": { "GH_TOKEN": "${localEnv:GH_TOKEN}" }
+}
