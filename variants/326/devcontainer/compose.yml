@@ -1,0 +1,67 @@
+# ================================================================
+# Gantry 326 — the dev container plus MongoDB, nothing else.
+#
+# The devcontainer service uses the prebuilt image from GHCR, so
+# opening a Codespace pulls it instead of building it. MongoDB is
+# started on demand with `dc-up mongo` (profile below) and is
+# reachable at the hostname `mongo` on the gantry network:
+#   mongodb://dev:devpassword@mongo:27017/devdb?authSource=admin
+#
+# No ports: on mongo here. Codespaces' port forwarder claims declared
+# ports itself; locally, `dc` layers compose.local-ports.yml on top.
+# ================================================================
+
+networks:
+  gantry:
+    name: gantry
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  mongo-data:
+  devcontainer-bashhistory:
+  gh-config-data:
+
+services:
+  devcontainer:
+    image: ghcr.io/timdrichards/gantry-326:latest
+    volumes:
+      - ..:/gantry:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+      - devcontainer-bashhistory:/commandhistory
+      - gh-config-data:/home/vscode/.config/gh
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      HISTFILE: /commandhistory/.bash_history
+    networks:
+      gantry:
+        aliases:
+          - devcontainer
+    command: sleep infinity
+    user: vscode
+
+  # Connect: mongo-dev   (or the URL in the header above)
+  mongo:
+    image: mongo:7
+    profiles: [ mongo ]
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dev
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: devdb
+    volumes:
+      - mongo-data:/data/db
+      - ${LOCAL_WORKSPACE_FOLDER}/.devcontainer/services/mongo/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      gantry:
+        aliases:
+          - mongo
+          - mongodb

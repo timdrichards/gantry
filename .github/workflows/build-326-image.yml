@@ -1,0 +1,61 @@
+name: Build 326 image
+
+# Builds ghcr.io/timdrichards/gantry-326 with the Dev Containers CLI
+# (features baked in) for amd64 (Codespaces) and arm64 (Apple-silicon
+# Macs), and pushes it on main. Pull requests build without pushing.
+# See variants/326/README.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - variants/326/image/**
+      - .github/workflows/build-326-image.yml
+  pull_request:
+    paths:
+      - variants/326/image/**
+      - .github/workflows/build-326-image.yml
+  schedule:
+    - cron: "0 7 1 * *"   # monthly, for base-image security updates
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: build-326-image-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/gantry-326
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (and push on main)
+        uses: devcontainers/ci@v0.3
+        with:
+          subFolder: variants/326/image
+          imageName: ${{ env.IMAGE }}
+          imageTag: latest,${{ github.sha }}
+          # A multi-platform image cannot be loaded locally, so a pull
+          # request (no push) checks the amd64 build only.
+          platform: ${{ github.event_name == 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
+          cacheFrom: ${{ env.IMAGE }}:latest
+          push: ${{ github.event_name == 'pull_request' && 'never' || 'always' }}

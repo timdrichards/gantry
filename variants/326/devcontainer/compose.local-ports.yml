@@ -1,0 +1,11 @@
+# ================================================================
+# Local-only port publishing overlay (not used in Codespaces).
+#
+# Publishes MongoDB on localhost:27017 so a GUI such as MongoDB
+# Compass on your own machine can reach it. The `dc` function only
+# adds this file outside Codespaces; see compose.yml for why.
+# ================================================================
+services:
+  mongo:
+    ports:
+      - "27017:27017"

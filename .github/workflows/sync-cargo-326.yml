@@ -1,0 +1,52 @@
+name: Sync cargo-326 (326 student distribution)
+
+# Mirrors variants/326/ (see .github/scripts/stage-cargo-326.sh) into the
+# 326 student repo on every push to main that touches it. The target
+# repo is the CARGO_326_REPO repository variable, defaulting to
+# timdrichards/cargo-326-fall-2026. Uses CARGO_SYNC_TOKEN, which needs
+# Contents: Read and write on that repo.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - variants/326/devcontainer/**
+      - variants/326/root/**
+      - doc/**
+      - .github/scripts/stage-cargo-326.sh
+      - .github/workflows/sync-cargo-326.yml
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      TARGET: ${{ vars.CARGO_326_REPO || 'timdrichards/cargo-326-fall-2026' }}
+    steps:
+      - name: Checkout gantry
+        uses: actions/checkout@v4
+        with:
+          path: gantry
+
+      - name: Checkout target
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TARGET }}
+          token: ${{ secrets.CARGO_SYNC_TOKEN }}
+          path: cargo
+
+      - name: Stage distribution content
+        run: bash gantry/.github/scripts/stage-cargo-326.sh gantry cargo
+
+      - name: Commit and push if changed
+        working-directory: cargo
+        run: |
+          git config user.name "gantry-sync[bot]"
+          git config user.email "actions@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+            exit 0
+          fi
+          git commit -m "Sync 326 variant from timdrichards/gantry@${{ github.sha }}"
+          git push
