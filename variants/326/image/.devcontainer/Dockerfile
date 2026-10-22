@@ -1,66 +1,77 @@
 # ============================================================
-# Gantry 326 — slim image for COMPSCI 326 Web Programming
+# Gantry 326 — minimal image for COMPSCI 326 Web Programming
 #
-# Built once by .github/workflows/build-326-image.yml and pushed to
+# Built by .github/workflows/build-326-image.yml and pushed to
 # ghcr.io/timdrichards/gantry-326, so a student's Codespace pulls it
-# instead of building anything. Only what 326 uses: Node + npm, git,
-# gh, the Docker CLI (from the docker-outside-of-docker feature, for
-# `dc-up mongo`), and build tools for native npm modules (bcrypt).
-# MongoDB itself runs as a sidecar (see variants/326/devcontainer/
-# compose.yml); its shell is reached through `mongo-dev`, which runs
-# mongosh inside that container, so mongosh is not installed here.
+# instead of building anything.
 #
-# Layer order is deliberate: the slow, rarely-changing apt + Node
-# layer first, so a change further down rebuilds in seconds.
+# Base: the official Node image on Debian slim, not the Microsoft
+# devcontainers base. It already has Node and npm, and its `node`
+# user (uid 1000) is renamed to `vscode` below so the rest of the
+# 326 config is unchanged. Debian, not Alpine: Alpine's musl libc
+# breaks some VS Code extensions and prebuilt npm binaries.
+#
+# Only what the course uses: Node + npm, git, gh and curl (both all
+# over the unit pages), the Docker CLI + compose for `dc-up mongo`,
+# a terminal editor for git (Lab 06's interactive rebase opens one),
+# and a few small tools the shell aliases use. No compilers: bcrypt
+# installs from its prebuilt binary. MongoDB runs as a sidecar, and
+# `mongo-dev` runs mongosh inside it, so neither is installed here.
 # ============================================================
-FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
+FROM node:26-bookworm-slim
 
-ARG NODE_VERSION=26
 ARG USERNAME=vscode
 
 # ------------------------------------------------------------
-# 1. All apt packages in ONE layer: add the NodeSource and GitHub CLI
-#    repos first, then a single update + install, then clean up.
+# 1. apt packages, with the GitHub CLI repo, in one layer
 # ------------------------------------------------------------
 RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+      ca-certificates curl git less nano vim-tiny jq procps lsof sudo; \
     install -m 0755 -d /etc/apt/keyrings; \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
-      | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg; \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" \
-      > /etc/apt/sources.list.d/nodesource.list; \
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
       -o /etc/apt/keyrings/githubcli.gpg; \
-    chmod a+r /etc/apt/keyrings/*.gpg; \
+    chmod a+r /etc/apt/keyrings/githubcli.gpg; \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli.gpg] https://cli.github.com/packages stable main" \
       > /etc/apt/sources.list.d/github-cli.list; \
     apt-get update; \
-    apt-get install -y --no-install-recommends \
-      nodejs gh \
-      build-essential python3 \
-      jq ripgrep tree less nano vim-tiny \
-      lsof psmisc iproute2 netcat-openbsd; \
+    apt-get install -y --no-install-recommends gh; \
     apt-get clean; \
-    rm -rf /var/lib/apt/lists/* /tmp/*; \
+    rm -rf /var/lib/apt/lists/* /tmp/*
+
+# ------------------------------------------------------------
+# 2. Docker CLI + compose plugin, copied in as single binaries
+#    (no daemon: the container talks to the host's Docker socket)
+# ------------------------------------------------------------
+COPY --from=docker:27-cli /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=docker/compose-bin:v2.29.7 /docker-compose /usr/local/libexec/docker/cli-plugins/docker-compose
+
+# ------------------------------------------------------------
+# 3. The `vscode` user: rename the image's `node` user, add it to a
+#    docker group (post-start.sh gives the socket to that group),
+#    passwordless sudo, and pre-own the dirs named volumes mount over.
+# ------------------------------------------------------------
+RUN set -eux; \
+    groupmod -n ${USERNAME} node; \
+    usermod -l ${USERNAME} -d /home/${USERNAME} -m node; \
+    groupadd -f docker; \
+    usermod -aG docker ${USERNAME}; \
+    echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME}; \
+    chmod 0440 /etc/sudoers.d/${USERNAME}; \
+    mkdir -p /home/${USERNAME}/.config/gh /commandhistory; \
+    touch /commandhistory/.bash_history; \
+    chown -R ${USERNAME}:${USERNAME} /home/${USERNAME} /commandhistory; \
     npm config --global set update-notifier false; \
     npm config --global set fund false
 
 # ------------------------------------------------------------
-# 2. Shell config lives in the student repo, so updates to it ship
-#    through the normal template sync without rebuilding this image.
+# 4. Shell config lives in the student repo, so updates to it ship
+#    through the template sync without rebuilding this image.
 # ------------------------------------------------------------
 RUN ln -s /gantry/.devcontainer/shell/.bashrc_devcontainer /etc/bash_devcontainer \
     && echo '[ -f /etc/bash_devcontainer ] && source /etc/bash_devcontainer' >> /etc/bash.bashrc
 
-# ------------------------------------------------------------
-# 3. User setup: docker group (DooD), passwordless sudo, and the gh
-#    config dir pre-owned so the named volume over it inherits vscode.
-# ------------------------------------------------------------
-RUN groupadd -f docker \
-    && usermod -aG docker ${USERNAME} \
-    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
-    && mkdir -p /home/${USERNAME}/.config/gh /commandhistory \
-    && touch /commandhistory/.bash_history \
-    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.config /commandhistory
-
+ENV EDITOR=nano
 WORKDIR /gantry
 USER ${USERNAME}

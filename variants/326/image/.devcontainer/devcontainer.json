@@ -3,21 +3,19 @@
   // Image definition for ghcr.io/timdrichards/gantry-326.
   //
   // Not shipped to students. The build workflow runs the Dev
-  // Containers CLI on this file, which builds the Dockerfile AND bakes
-  // the features below into the image, recording them in the image's
+  // Containers CLI on this file, which builds the Dockerfile and bakes
+  // the feature below into the image, recording it in the image's
   // devcontainer.metadata label. A student's Codespace then pulls the
   // finished image and installs nothing at start-up.
+  //
+  // The Docker CLI is in the Dockerfile itself (two copied binaries),
+  // so the docker-outside-of-docker feature is no longer used.
   // ================================================================
   "name": "Gantry 326 (image build)",
   "build": { "dockerfile": "Dockerfile" },
   "features": {
-    // Docker CLI + compose for `dc-up mongo`, against the host daemon.
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "version": "latest",
-      "enableNonRootDocker": "true",
-      "moby": "false"
-    },
-    // sshd: only so `gh codespace ssh` can reach the container.
+    // sshd: so `gh codespace ssh` (the README's command-line option)
+    // can reach the container.
     "ghcr.io/devcontainers/features/sshd:1": { "version": "latest" }
   },
   "remoteUser": "vscode"
