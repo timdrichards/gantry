@@ -6,9 +6,11 @@ name: Sync cargo (student distribution)
 # ready state. Requires a CARGO_SYNC_TOKEN secret: a fine-grained PAT
 # with Contents: Read and write on timdrichards/cargo only.
 
+# TURNED OFF 2026-10-22: timdrichards/cargo is now the 326 template, filled
+# by sync-cargo-326.yml. Running this would overwrite it with the full
+# gantry setup. Kept, by hand only, until the full setup gets its own
+# target repo (for example a future gantry-426).
 on:
-  push:
-    branches: [main]
   workflow_dispatch: {}
 
 jobs:

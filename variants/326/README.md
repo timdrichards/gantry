@@ -33,7 +33,7 @@ can be rolled back by pointing `devcontainer/compose.yml` at an older SHA.
 
 `.github/workflows/sync-cargo-326.yml` runs `.github/scripts/stage-cargo-326.sh`
 and pushes the result to the repo named in the `CARGO_326_REPO` repository
-variable (default `timdrichards/cargo-326-fall-2026`), using
+variable (default `timdrichards/cargo`, which is 326-only from 2026-10-22; the full-gantry sync, `sync-cargo.yml`, is turned off so it cannot overwrite it), using
 `CARGO_SYNC_TOKEN`. That token must have Contents: Read and write on the
 target repo.
 

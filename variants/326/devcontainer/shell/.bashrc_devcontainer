@@ -141,7 +141,26 @@ cargo-update() {
     return 0
   fi
   echo "Found ${behind} update(s). Applying them..."
-  if git -C /gantry merge upstream/main --no-edit; then
+  local merged=0
+  if git -C /gantry merge-base HEAD upstream/main &>/dev/null; then
+    git -C /gantry merge upstream/main --no-edit && merged=1
+  else
+    # First update of a copy made with "Use this template": its history
+    # is not linked to the template's yet, so git needs permission to join
+    # them. The template's version wins for the files it manages; files
+    # the template has since dropped from .devcontainer are removed.
+    if git -C /gantry merge upstream/main --allow-unrelated-histories -X theirs --no-edit; then
+      merged=1
+      local dropped
+      dropped=$(comm -23 <(git -C /gantry ls-files .devcontainer | sort) \
+                         <(git -C /gantry ls-tree -r --name-only upstream/main -- .devcontainer | sort))
+      if [[ -n "$dropped" ]]; then
+        echo "$dropped" | (cd /gantry && xargs git rm -q --) \
+          && git -C /gantry commit -q -m "Remove files the course template dropped"
+      fi
+    fi
+  fi
+  if (( merged )); then
     echo ""
     echo "✅ Updated. If VS Code offers 'Rebuild Container', click it to finish."
     echo "   Otherwise run 'Dev Containers: Rebuild Container' from the Command Palette."

@@ -38,6 +38,14 @@ work/                           # Student scratch space for their own repos; git
 
 ## Student Distribution: the `cargo` Repo
 
+> **From 2026-10-22, `timdrichards/cargo` is the COMPSCI 326 template only.**
+> It is filled from `variants/326/` by `sync-cargo-326.yml` (prebuilt image
+> `ghcr.io/timdrichards/gantry-326`); the full-gantry sync below,
+> `sync-cargo.yml`, is turned off (manual dispatch only) so it cannot
+> overwrite it. A later rename to per-course repos (gantry-326, gantry-426)
+> means adding a variant per course and setting each sync's target repo.
+> The text below describes the original full-gantry setup.
+
 `gantry` is the instructor/development repo — it has things students should
 never see: `.claude/`, `CLAUDE.md`, `.devcontainer/docs/` (developer docs),
 `NOTES.md`, etc. **`timdrichards/cargo`** (public, marked as a GitHub
